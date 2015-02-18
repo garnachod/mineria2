@@ -42,5 +42,11 @@ public class Posting {
         return termPositions;
     }
     
-    
+    /**
+     * Add a position to the list
+     * @param pos 
+     */
+    public void addTermPosition (Long pos) {
+        this.termPositions.add(pos);
+    }
 }
