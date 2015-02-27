@@ -13,7 +13,8 @@ public class SimpleTokenizer {
     private String separators;
     
     public SimpleTokenizer(){
-        this.separators = ",| |\t|\n|<|>|(|)|_|\"|'|%|$|@|/";
+        //this.separators = ",| |\t|\n|<|>|(|)|_|\"|'|%|$|@|/";
+        this.separators = ",| |\t|\n|<|>|_|\"|'|%|$|@|/|&|=";
     }
     
     public String[] split(String text){
