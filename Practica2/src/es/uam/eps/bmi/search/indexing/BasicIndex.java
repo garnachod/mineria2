@@ -111,7 +111,7 @@ public class BasicIndex implements Index{
         
         // Si queda espacio en RAM
         if (Runtime.getRuntime().freeMemory() > MAX_RAM) {
-            System.out.println(Runtime.getRuntime().freeMemory());
+            //System.out.println(Runtime.getRuntime().freeMemory());
             this.insertDocument(entry, textParser, docId);
         } else { 
             // Imprimir índice temporal en disco
@@ -196,6 +196,7 @@ public class BasicIndex implements Index{
     private void saveIndexTemporal(String nombreFichero) throws Exception {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
         //boolean debug = true;
+        System.out.println("numero de terminos: " + this.sortedTerms.size());
         while (!this.sortedTerms.isEmpty()) {
             String term = this.sortedTerms.poll();
             /*if(debug == true){
@@ -294,6 +295,7 @@ public class BasicIndex implements Index{
             //se insertan en orden las posting list
             //se lee el siguente termino, se inserta en el heap principal
         //lo he llamado TemporalIndexDescriptor
+        dos.close();
     }
     
     private String getNameIndexTemporal(){
