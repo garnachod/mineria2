@@ -95,4 +95,8 @@ public class Posting {
         }
         
     }
+    
+    public static List<Posting> readListPostingsByPos(DataInputStream stream, long pos){
+        return null;
+    }
 }

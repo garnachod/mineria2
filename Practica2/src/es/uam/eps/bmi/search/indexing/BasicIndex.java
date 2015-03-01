@@ -44,6 +44,11 @@ public class BasicIndex implements Index{
     private String outputIndexPath;
     private ZipFile zip;
     private long contadorFilesProc;
+    //read
+    private HashMap<String, String> indexedIDtoFile;
+    //String el termino y Long la posicion desde el principio del fichero
+    //de la lista de postings que lo determina
+    private HashMap<String, Long> indexRAMBusqueda;
     
     public BasicIndex(){
         this.tokenizer = new SimpleTokenizer();
@@ -56,16 +61,23 @@ public class BasicIndex implements Index{
     
     @Override
     public void build(String inputCollectionPath, String outputIndexPath, TextParser textParser) {
+       
         this.partialIndex = new HashMap<>();
         this.outputIndexPath = outputIndexPath;
         long contFiles = 0;
         try{
+            String nombreFicheroIndexNameFiles = outputIndexPath + "\\idFileToName.data";
+            DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFicheroIndexNameFiles)));
+        
             zip = new ZipFile(inputCollectionPath);
             Enumeration<? extends ZipEntry> entries = zip.entries();
             
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                this.analyzeDocument(entry, textParser, contFiles+"");
+                String idFile = contFiles+"";
+                this.analyzeDocument(entry, textParser, idFile);
+                dos.writeUTF(idFile);
+                dos.writeUTF(entry.getName());
                 
                 contFiles++;
                 this.contadorFilesProc++;
@@ -73,7 +85,7 @@ public class BasicIndex implements Index{
                 //System.out.println(contFiles);
             }
             this.saveIndexFinal(outputIndexPath+"\\indexed.data");
-            
+            dos.close();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -82,7 +94,52 @@ public class BasicIndex implements Index{
 
     @Override
     public void load(String indexPath) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.indexedIDtoFile = new HashMap<>();
+        try{
+            //load idfile to name
+            String nombreFichero = indexPath + "\\idFileToName.data";
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
+            
+            while(dis.available() > 0){
+                indexedIDtoFile.put(dis.readUTF(), dis.readUTF());
+            }
+            dis.close();
+            //load index ram
+            this.indexRAMBusqueda = new HashMap<>();
+            nombreFichero = indexPath + "\\indexed.data";
+            dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
+            long contPosition = 0;
+            int intSize = Integer.SIZE/8;
+            int longSize = Long.SIZE/8;
+            while(dis.available() > 0){
+                //leemos el termino y lo insertamos en la Hash
+                int nPostings = 0;
+                String termino = "";
+                long tamPostings = 0;
+                try{
+                    termino = dis.readUTF();
+                    //System.out.println(termino);
+                    int offset = termino.getBytes("UTF-8").length+2;
+                    contPosition += offset;
+                        //insercion en la hash
+                    this.indexRAMBusqueda.put(termino, new Long(contPosition));
+                    nPostings = dis.readInt();
+                    tamPostings = dis.readLong();
+                    //a lo mejor comprobar que este float no ocupa mas que un int
+                    //es poco probable
+                    dis.skipBytes((int)tamPostings);
+                    //dis.skip(tamPostings);
+                    contPosition += intSize + longSize + tamPostings;
+                    //System.out.println("npostings:" +nPostings+ "tamPostings" +tamPostings+ "pos"+ contPosition);
+                }catch(Exception e){
+                    System.out.println("termino:"+ termino +"npostings:" +nPostings+ "tamPostings" +tamPostings+ "pos"+ contPosition);
+                    return;
+                }
+            }
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -257,6 +314,12 @@ public class BasicIndex implements Index{
             ArrayList<TemporalIndexDescriptor> temporalTIDList = new ArrayList<>();
             TemporalIndexDescriptor primero = sortedTID.poll();
             temporalTIDList.add(primero);
+            //System.out.println(primero.getTermino() +" tam:" +primero.getTamBytesPostings());
+            /*if(primero.getTermino().equals("about")){
+                System.out.println(primero.getTermino());
+                System.out.println(primero.getnPostings());
+                System.out.println(primero.getTamBytesPostings());
+            }*/
             //System.out.println(primero.getTermino());
             /*if(debug == true){
                 System.out.println(primero.getTermino());

@@ -28,5 +28,8 @@ public class TestIndexProgramado {
         BasicIndex indexer = new BasicIndex();
         System.out.println("Construyendo índice...");
         indexer.build(args[0], args[1], tp);
+        
+        System.out.println("Leyendo índice...");
+        indexer.load(args[1]);
     }
 }

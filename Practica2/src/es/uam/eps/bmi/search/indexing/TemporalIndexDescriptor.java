@@ -19,6 +19,7 @@ public class TemporalIndexDescriptor implements Comparable{
     private final DataInputStream index;
     private int nPostings;
     private long tamBytesPostings;
+    private long tamBytesPostingsNoEscritos;
     private final int idTemporal;
     
     public TemporalIndexDescriptor(DataInputStream index, int idTemporal){
@@ -38,6 +39,8 @@ public class TemporalIndexDescriptor implements Comparable{
         this.nPostings = this.index.readInt();
         //lectura del tam en bytes
         this.tamBytesPostings = this.index.readLong();
+        //tamBytesNoEscritos
+        this.tamBytesPostingsNoEscritos = this.tamBytesPostings;
     }
     
     
@@ -45,8 +48,8 @@ public class TemporalIndexDescriptor implements Comparable{
         int byteRead = 0;
         boolean flag = false;
         
-        if(this.getTamBytesPostings() > Integer.MAX_VALUE){
-           this.tamBytesPostings -=  Integer.MAX_VALUE;
+        if(this.tamBytesPostingsNoEscritos > Integer.MAX_VALUE){
+           this.tamBytesPostingsNoEscritos -=  Integer.MAX_VALUE;
            byteRead = Integer.MAX_VALUE;
            flag = true;
         }else{
@@ -54,8 +57,11 @@ public class TemporalIndexDescriptor implements Comparable{
         }
         
         byte [] buffer = new byte[byteRead];
-        this.index.read(buffer, 0, byteRead);
-        finalIndex.write(buffer);
+        
+        this.index.readFully(buffer, 0, byteRead);
+
+        finalIndex.write(buffer, 0, byteRead);
+        
         
         if(flag == true){
             this.printPostingList(finalIndex);
