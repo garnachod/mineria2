@@ -10,14 +10,12 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -27,28 +25,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 
-/**
+    
+ /**
  *
  * @author Diego Castaño y Daniel Garnacho
  */
 public class BasicIndex implements Index{
 
-    final long MAX_RAM = 50 * 1024; // Min bytes of free memory
+    private long maxIndexLong;
+    private long estimatedIndexSize;
     private SimpleTokenizer tokenizer;
     private HashMap<String, List<Posting>> partialIndex;
     private PriorityQueue<String> sortedTerms;
     private ArrayList<String> ficherosTemporales;
     private String outputIndexPath;
     private ZipFile zip;
-    private long contadorFilesProc;
+    
     //read
     private HashMap<String, String> indexedIDtoFile;
+    
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
     private HashMap<String, Long> indexRAMBusqueda;
+
     
     public BasicIndex(){
         this.tokenizer = new SimpleTokenizer();
@@ -56,7 +56,10 @@ public class BasicIndex implements Index{
         this.sortedTerms = new PriorityQueue<>();
         this.ficherosTemporales = new ArrayList<>();
         this.outputIndexPath = "";
-        this.contadorFilesProc= 0;
+        this.maxIndexLong = (long) (Runtime.getRuntime().maxMemory() * 0.1);
+        this.estimatedIndexSize = 0;
+        
+        System.out.println("max index: " + maxIndexLong);
     }
     
     @Override
@@ -80,9 +83,7 @@ public class BasicIndex implements Index{
                 dos.writeUTF(entry.getName());
                 
                 contFiles++;
-                this.contadorFilesProc++;
-                //return;
-                //System.out.println(contFiles);
+                
             }
             this.saveIndexFinal(outputIndexPath+"\\indexed.data");
             dos.close();
@@ -170,19 +171,22 @@ public class BasicIndex implements Index{
     private void analyzeDocument(ZipEntry entry, TextParser textParser, String docId) {
         
         // Si queda espacio en RAM
-        if (Runtime.getRuntime().freeMemory() > MAX_RAM && this.contadorFilesProc < 1000) {
+        if (this.hasFreeSpace()) {
             //System.out.println(Runtime.getRuntime().freeMemory());
             this.insertDocument(entry, textParser, docId);
-        } else { 
-            // Imprimir índice temporal en disco
-            try{
-                this.contadorFilesProc = 0;
+        } else {
+            try {
                 this.saveIndexTemporal(this.getNameIndexTemporal());
                 this.analyzeDocument(entry, textParser, docId);
-            }catch(Exception e){
-                e.printStackTrace();
+            } catch (Exception ex) {
+                Logger.getLogger(BasicIndex.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    private boolean hasFreeSpace() {
+        //System.out.println("El indice mide " + this.estimatedIndexSize + "/" + this.maxIndexLong);
+        return (this.estimatedIndexSize < this.maxIndexLong);
     }
     
     /**
@@ -238,7 +242,8 @@ public class BasicIndex implements Index{
                                 listaPost.add(fileIndex.get(term));
                                 this.partialIndex.put(term, listaPost);
                                 this.sortedTerms.add(term);
-                            }
+                             }
+                            this.estimatedIndexSize += fileIndex.get(term).getBinarySizeBytes();
                         }
                         
                         // Contar frecuencias y posiciones (tabla hash<String, Posting>)
@@ -298,6 +303,7 @@ public class BasicIndex implements Index{
         if(!this.sortedTerms.isEmpty()){
             this.saveIndexTemporal(this.getNameIndexTemporal());
         }
+        
         PriorityQueue<TemporalIndexDescriptor> sortedTID = new PriorityQueue<>();
         System.out.println("creando cola de prioridad");
         int i = 1;
@@ -308,27 +314,16 @@ public class BasicIndex implements Index{
             sortedTID.add(tid);
             i++;
         }
-        //boolean debug = true;
+        
         while(!sortedTID.isEmpty()){
-            //System.out.println("iterando");
+            
             ArrayList<TemporalIndexDescriptor> temporalTIDList = new ArrayList<>();
             TemporalIndexDescriptor primero = sortedTID.poll();
             temporalTIDList.add(primero);
-            //System.out.println(primero.getTermino() +" tam:" +primero.getTamBytesPostings());
-            /*if(primero.getTermino().equals("about")){
-                System.out.println(primero.getTermino());
-                System.out.println(primero.getnPostings());
-                System.out.println(primero.getTamBytesPostings());
-            }*/
-            //System.out.println(primero.getTermino());
-            /*if(debug == true){
-                System.out.println(primero.getTermino());
-                System.out.println(primero.getnPostings());
-                System.out.println(primero.getTamBytesPostings());
-            }*/
             
             int totalNPostings = primero.getnPostings();
             long totalBytes = primero.getTamBytesPostings();
+            
             //busca hasta que el termino sea distinto
             while(!sortedTID.isEmpty()){
                 TemporalIndexDescriptor otro = sortedTID.poll();
@@ -341,10 +336,12 @@ public class BasicIndex implements Index{
                     break;
                 }
             }
+            
             //imprimir el termino y la suma total
             dos.writeUTF(primero.getTermino());
             dos.writeInt(totalNPostings);
             dos.writeLong(totalBytes);
+            
             //imprimir las listas de postings en orden
             for(TemporalIndexDescriptor tid : temporalTIDList){
                 tid.printPostingList(dos);
@@ -363,10 +360,13 @@ public class BasicIndex implements Index{
             //se lee el siguente termino, se inserta en el heap principal
         //lo he llamado TemporalIndexDescriptor
         dos.close();
+        
+        // Borrar indices temporales
+        this.removeTemp();
     }
     
     private String getNameIndexTemporal(){
-        return this.outputIndexPath + "/_auxIndex" + this.ficherosTemporales.size() + ".data";
+        return this.outputIndexPath + "\\_auxIndex" + this.ficherosTemporales.size() + ".data";
     }
 
     /**
@@ -375,6 +375,7 @@ public class BasicIndex implements Index{
     private void cleanIndex() {
         this.partialIndex = new HashMap<>();
         this.sortedTerms = new PriorityQueue<>();
+        this.estimatedIndexSize = 0;
     }
     
     /**
@@ -405,5 +406,12 @@ public class BasicIndex implements Index{
         }
         return sb.toString();    
     }
-    
+
+    private void removeTemp() {
+        System.gc();
+        for (String temp: this.ficherosTemporales) {
+            File f = new File(temp);
+            f.delete();
+        }
+    }
 }
