@@ -43,6 +43,7 @@ public class BasicIndex implements Index{
     private ArrayList<String> ficherosTemporales;
     private String outputIndexPath;
     private ZipFile zip;
+    private long contadorFilesProc;
     
     public BasicIndex(){
         this.tokenizer = new SimpleTokenizer();
@@ -50,6 +51,7 @@ public class BasicIndex implements Index{
         this.sortedTerms = new PriorityQueue<>();
         this.ficherosTemporales = new ArrayList<>();
         this.outputIndexPath = "";
+        this.contadorFilesProc= 0;
     }
     
     @Override
@@ -66,6 +68,7 @@ public class BasicIndex implements Index{
                 this.analyzeDocument(entry, textParser, contFiles+"");
                 
                 contFiles++;
+                this.contadorFilesProc++;
                 //return;
                 //System.out.println(contFiles);
             }
@@ -110,12 +113,13 @@ public class BasicIndex implements Index{
     private void analyzeDocument(ZipEntry entry, TextParser textParser, String docId) {
         
         // Si queda espacio en RAM
-        if (Runtime.getRuntime().freeMemory() > MAX_RAM) {
+        if (Runtime.getRuntime().freeMemory() > MAX_RAM && this.contadorFilesProc < 1000) {
             //System.out.println(Runtime.getRuntime().freeMemory());
             this.insertDocument(entry, textParser, docId);
         } else { 
             // Imprimir índice temporal en disco
             try{
+                this.contadorFilesProc = 0;
                 this.saveIndexTemporal(this.getNameIndexTemporal());
                 this.analyzeDocument(entry, textParser, docId);
             }catch(Exception e){

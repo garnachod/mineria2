@@ -14,7 +14,7 @@ import java.util.Comparator;
  *
  * @author dani
  */
-public class TemporalIndexDescriptor implements Comparator{
+public class TemporalIndexDescriptor implements Comparable{
     private String termino;
     private final DataInputStream index;
     private int nPostings;
@@ -82,17 +82,7 @@ public class TemporalIndexDescriptor implements Comparator{
         //se compara primero el termino
         //se compara despues el id del fichero temporal
 
-    @Override
-    public int compare(Object o1, Object o2) {
-        //suponemos que los dos objetos son de este tipo
-        TemporalIndexDescriptor tid1 = (TemporalIndexDescriptor)o1;
-        TemporalIndexDescriptor tid2 = (TemporalIndexDescriptor)o2;
-        if(tid1.getTermino().equals(tid2.getTermino())){
-            return tid1.idTemporal - tid2.idTemporal;
-        }else{
-            return tid1.getTermino().compareTo(tid2.getTermino());
-        }
-    }
+  
 
     /**
      * @return the nPostings
@@ -113,6 +103,18 @@ public class TemporalIndexDescriptor implements Comparator{
      */
     public String getTermino() {
         return termino;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        //suponemos que los dos objetos son de este tipo
+        TemporalIndexDescriptor tid1 = this;
+        TemporalIndexDescriptor tid2 = (TemporalIndexDescriptor)o;
+        if(tid1.getTermino().equals(tid2.getTermino())){
+            return tid1.idTemporal - tid2.idTemporal;
+        }else{
+            return tid1.getTermino().compareTo(tid2.getTermino());
+        }
     }
     
     
