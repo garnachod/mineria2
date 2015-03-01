@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -71,15 +72,17 @@ public class Posting {
         //output = new BufferedOutputStream(new FileOutputStream(aOutputFileName));
         //output.write(aInput);
         //docId
-        stream.writeChars(docId);
+        stream.writeUTF(this.docId);
         stream.writeInt(this.termFrequency);
         for(Long tP: this.termPositions){
-            stream.writeFloat(tP.floatValue());
+            stream.writeLong(tP);
         }
+       
     }
-    public int getBinarySizeBytes(){
+    public int getBinarySizeBytes() throws UnsupportedEncodingException{
         int sum = 0;
-        sum += this.docId.getBytes().length;
+        //mas 2 por el tipo de codificacion en el fichero de bytes
+        sum += this.docId.getBytes("UTF-8").length+2;
         sum += Integer.SIZE/8;
         sum += (Long.SIZE/8) * this.termFrequency;
         return sum;

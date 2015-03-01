@@ -5,9 +5,12 @@ import es.uam.eps.bmi.search.TextDocument;
 import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.SimpleTokenizer;
 import es.uam.eps.bmi.search.parsing.TextParser;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -113,7 +116,7 @@ public class BasicIndex implements Index{
         } else { 
             // Imprimir índice temporal en disco
             try{
-                this.saveIndex(this.getNameIndexTemporal());
+                this.saveIndexTemporal(this.getNameIndexTemporal());
                 this.analyzeDocument(entry, textParser, docId);
             }catch(Exception e){
                 e.printStackTrace();
@@ -190,21 +193,32 @@ public class BasicIndex implements Index{
     /**
      * Write sorted postings to file
      */
-    private void saveIndex(String nombreFichero) throws Exception {
+    private void saveIndexTemporal(String nombreFichero) throws Exception {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
+        //boolean debug = true;
         while (!this.sortedTerms.isEmpty()) {
             String term = this.sortedTerms.poll();
+            /*if(debug == true){
+                System.out.println(term);
+            }*/
             List<Posting> postings = this.partialIndex.get(term);
             //impresión del termino
-            dos.writeChars(term);
+            dos.writeUTF(term);
             //impresion del tamaño en numero de elementos de la lista de postings
             dos.writeInt(postings.size());
+            /*if(debug == true){
+                System.out.println(postings.size());
+            }*/
             //get tam en bytes
             long bytesLenght = 0;
             for(Posting post:postings){
                 bytesLenght += post.getBinarySizeBytes();
             }
             dos.writeLong(bytesLenght);
+            /*if(debug == true){
+                System.out.println(bytesLenght);
+            }*/
+            //debug = false;
             //estoy pensando en imprimir en bytes el tamaño tambien para poder hacer saltos en el indice
             for(Posting post:postings){
                 post.printBinary(dos);
@@ -217,12 +231,62 @@ public class BasicIndex implements Index{
         this.cleanIndex();
     }
     private void saveIndexFinal(String nombreFichero) throws Exception {
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
+        
         if(!this.sortedTerms.isEmpty()){
-            this.saveIndex(this.getNameIndexTemporal());
+            this.saveIndexTemporal(this.getNameIndexTemporal());
         }
-        //crear una estructura para hacer un heap
-        //esa estructura va a tener termino al que apunta, posición del fichero
-        //id del fichero pasado int
+        PriorityQueue<TemporalIndexDescriptor> sortedTID = new PriorityQueue<>();
+        System.out.println("creando cola de prioridad");
+        int i = 1;
+        for(String nombreITemp : this.ficherosTemporales){
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreITemp)));
+            TemporalIndexDescriptor tid = new TemporalIndexDescriptor(dis, i);
+            tid.readTermino();
+            sortedTID.add(tid);
+            i++;
+        }
+        //boolean debug = true;
+        while(!sortedTID.isEmpty()){
+            //System.out.println("iterando");
+            ArrayList<TemporalIndexDescriptor> temporalTIDList = new ArrayList<>();
+            TemporalIndexDescriptor primero = sortedTID.poll();
+            temporalTIDList.add(primero);
+            //System.out.println(primero.getTermino());
+            /*if(debug == true){
+                System.out.println(primero.getTermino());
+                System.out.println(primero.getnPostings());
+                System.out.println(primero.getTamBytesPostings());
+            }*/
+            
+            int totalNPostings = primero.getnPostings();
+            long totalBytes = primero.getTamBytesPostings();
+            //busca hasta que el termino sea distinto
+            while(!sortedTID.isEmpty()){
+                TemporalIndexDescriptor otro = sortedTID.poll();
+                if(primero.isEqualTerm(otro)){
+                    temporalTIDList.add(otro);
+                    totalNPostings += otro.getnPostings();
+                    totalBytes += otro.getTamBytesPostings();
+                }else{
+                    sortedTID.add(otro);
+                    break;
+                }
+            }
+            //imprimir el termino y la suma total
+            dos.writeUTF(primero.getTermino());
+            dos.writeInt(totalNPostings);
+            dos.writeLong(totalBytes);
+            //imprimir las listas de postings en orden
+            for(TemporalIndexDescriptor tid : temporalTIDList){
+                tid.printPostingList(dos);
+                if(tid.isAvailable()){
+                    tid.readTermino();
+                    sortedTID.add(tid);
+                }
+            }
+        }
+        
         //se coge del heap el ultimo se avanza y se inserta en el heap
             //se cogen del heap hasta que el termino no sea igual, se insertan en otro heap
             //finalidad:

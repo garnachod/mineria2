@@ -14,7 +14,8 @@ public class SimpleTokenizer {
     
     public SimpleTokenizer(){
         //this.separators = ",| |\t|\n|<|>|(|)|_|\"|'|%|$|@|/";
-        this.separators = ",| |\t|\n|<|>|_|\"|'|%|$|@|/|&|=";
+        this.separators = ",| |\t|\n|<|>|_|\"|'|%|\\$|@|/|&|=|“|”|‘|’|•|　| |\\||–|—|:|;|●|≈|…|\\.|\\?|\\¿|»|«|©";
+        this.separators += "|~|\\{|\\}|\\(|\\)|�|!|¡|\\[|\\]|-|0|1|2|3|4|5|6|7|8|9|\\+|\\*|\\#||`";
     }
     
     public String[] split(String text){

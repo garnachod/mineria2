@@ -22,6 +22,7 @@ public class SimpleNormalizer {
             if(array[i].length() <= 3){
                 //no insertar
             }else{
+                String normal = array[i].replace(" ", "");
                 lista.add(array[i]);
             }
         }
