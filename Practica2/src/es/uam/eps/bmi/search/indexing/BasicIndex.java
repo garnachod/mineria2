@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -41,14 +42,14 @@ public class BasicIndex implements Index{
     private ArrayList<String> ficherosTemporales;
     private String outputIndexPath;
     private ZipFile zip;
-    private DataInputStream indexFile;
+    private DataInputStream indexFile = null;
     
     //read
     private HashMap<String, String> indexedIDtoFile;
     
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
-    private HashMap<String, Long> indexRAMBusqueda;
+    private HashMap<String, Integer> indexRAMBusqueda;
 
     
     public BasicIndex(){
@@ -101,7 +102,7 @@ public class BasicIndex implements Index{
         try{
             //load idfile to name
             String nombreFichero = indexPath + "\\idFileToName.data";
-            DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
+            DataInputStream dis = new DataInputStream(new FileInputStream(nombreFichero));
             
             while(dis.available() > 0){
                 indexedIDtoFile.put(dis.readUTF(), dis.readUTF());
@@ -110,9 +111,9 @@ public class BasicIndex implements Index{
             //load index ram
             this.indexRAMBusqueda = new HashMap<>();
             nombreFichero = indexPath + "\\indexed.data";
-            dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
-            dis.mark(dis.available());
-            this.indexFile = dis;
+            FileInputStream file = new FileInputStream(nombreFichero);
+            FileChannel fileChannel = file.getChannel();
+            dis = new DataInputStream(file);
             long contPosition = 0;
             int intSize = Integer.SIZE/8;
             int longSize = Long.SIZE/8;
@@ -123,24 +124,27 @@ public class BasicIndex implements Index{
                 long tamPostings = 0;
                 try{
                     termino = dis.readUTF();
-                    //System.out.println(termino);
-                    int offset = termino.getBytes("UTF-8").length+2;
-                    contPosition += offset;
-                        //insercion en la hash
-                    this.indexRAMBusqueda.put(termino, new Long(contPosition));
+                    
+                    //insercion en la hash
+                    if(this.indexRAMBusqueda.containsKey(termino)){
+                        System.out.println("Indice mal formado");
+                        return;
+                    }
+                    this.indexRAMBusqueda.put(termino, new Integer((int)fileChannel.position()));
+                    
+                    //this.indexRAMBusqueda.put(termino, new Integer((int)contPosition));
                     nPostings = dis.readInt();
                     tamPostings = dis.readLong();
                     //a lo mejor comprobar que este float no ocupa mas que un int
                     //es poco probable
                     dis.skipBytes((int)tamPostings);
-                    //dis.skip(tamPostings);
-                    contPosition += intSize + longSize + tamPostings;
-                    //System.out.println("npostings:" +nPostings+ "tamPostings" +tamPostings+ "pos"+ contPosition);
+                    
                 }catch(Exception e){
                     System.out.println("termino:"+ termino +"npostings:" +nPostings+ "tamPostings" +tamPostings+ "pos"+ contPosition);
                     return;
                 }
             }
+            dis.close();
             
         }catch(Exception e){
             e.printStackTrace();
@@ -166,12 +170,20 @@ public class BasicIndex implements Index{
     public List<Posting> getTermsPosting(String term){
         try {
             if(this.indexRAMBusqueda.containsKey(term)){
-                return Posting.readListPostingsByPos(this.indexFile, this.indexRAMBusqueda.get(term));
+                if(this.indexFile == null){
+                    String nombreFichero = this.outputIndexPath + "\\indexed.data";
+                    this.indexFile = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
+                }
+                List<Posting> listaRetorno = Posting.readListPostingsByPos(this.indexFile, this.indexRAMBusqueda.get(term));
+                this.indexFile.close();
+                this.indexFile = null;
+                return listaRetorno;
             }else{
                 return null;
             }
             
         } catch (IOException ex) {
+            
             ex.printStackTrace();
         }
         return null;
@@ -190,6 +202,7 @@ public class BasicIndex implements Index{
             this.insertDocument(entry, textParser, docId);
         } else {
             try {
+                System.out.println("Último docID: " + docId);
                 this.saveIndexTemporal(this.getNameIndexTemporal());
                 this.analyzeDocument(entry, textParser, docId);
             } catch (Exception ex) {
@@ -275,6 +288,7 @@ public class BasicIndex implements Index{
      */
     private void saveIndexTemporal(String nombreFichero) throws Exception {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
+        //DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombreFichero));
         //boolean debug = true;
         System.out.println("numero de terminos: " + this.sortedTerms.size());
         while (!this.sortedTerms.isEmpty()) {
@@ -323,6 +337,7 @@ public class BasicIndex implements Index{
         int i = 1;
         for(String nombreITemp : this.ficherosTemporales){
             DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreITemp)));
+            //DataInputStream dis = new DataInputStream(new FileInputStream(nombreITemp));
             TemporalIndexDescriptor tid = new TemporalIndexDescriptor(dis, i);
             tid.readTermino();
             sortedTID.add(tid);
@@ -342,6 +357,7 @@ public class BasicIndex implements Index{
             while(!sortedTID.isEmpty()){
                 TemporalIndexDescriptor otro = sortedTID.poll();
                 if(primero.isEqualTerm(otro)){
+                    //System.out.println(primero.getTermino());
                     temporalTIDList.add(otro);
                     totalNPostings += otro.getnPostings();
                     totalBytes += otro.getTamBytesPostings();

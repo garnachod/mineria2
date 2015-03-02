@@ -9,6 +9,7 @@ import es.uam.eps.bmi.search.indexing.BasicIndex;
 import es.uam.eps.bmi.search.indexing.Posting;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
 import es.uam.eps.bmi.search.parsing.TextParser;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,13 +30,26 @@ public class TestIndexProgramado {
         TextParser tp = new HTMLSimpleParser();
         BasicIndex indexer = new BasicIndex();
         System.out.println("Construyendo índice...");
-        indexer.build(args[0], args[1], tp);
+        //indexer.build(args[0], args[1], tp);
         
         System.out.println("Leyendo índice...");
         indexer.load(args[1]);
-        List<Posting> lista = indexer.getTermsPosting("rated");
-        for(Posting p:lista){
-            System.out.println(indexer.getDocument(p.getDocId())+ " " +p);
+        System.out.println("índice leido...");
+        /*List<String> lista =indexer.getTerms();
+        Collections.sort(lista);
+        int i = lista.size()-2000;
+        int limite = lista.size()-1000;
+        for(;i<limite;i++){
+            System.out.println(lista.get(i));
+            i++;
+            if(i>limite){
+                break;
+            }
         }
+        List<Posting> listaP = indexer.getTermsPosting("zalagenas");
+
+        for(Posting p:listaP){
+            System.out.println(p);
+        }*/
     }
 }

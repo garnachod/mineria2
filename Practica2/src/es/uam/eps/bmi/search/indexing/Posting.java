@@ -1,12 +1,9 @@
 package es.uam.eps.bmi.search.indexing;
 
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,9 +102,14 @@ public class Posting {
         return this.docId + " " + this.termFrequency + " " + this.termPositions;
     }
     
-    public static List<Posting> readListPostingsByPos(DataInputStream stream, long pos) throws IOException {
-        stream.reset();
-        stream.skipBytes((int)pos);
+    public static List<Posting> readListPostingsByPos(DataInputStream stream, int pos) throws IOException {
+        
+        int totalSkiped = 0;
+        while(totalSkiped != pos){
+            totalSkiped += stream.skip(pos-totalSkiped); 
+
+        }
+
         int nPostings = stream.readInt();
         long tamBytes = stream.readLong();
         
