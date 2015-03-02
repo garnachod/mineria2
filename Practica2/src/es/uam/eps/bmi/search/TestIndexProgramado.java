@@ -35,7 +35,7 @@ public class TestIndexProgramado {
         indexer.load(args[1]);
         List<Posting> lista = indexer.getTermsPosting("rated");
         for(Posting p:lista){
-            System.out.println(p);
+            System.out.println(indexer.getDocument(p.getDocId())+ " " +p);
         }
     }
 }
