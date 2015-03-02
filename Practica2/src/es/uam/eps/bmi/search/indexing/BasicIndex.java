@@ -41,6 +41,7 @@ public class BasicIndex implements Index{
     private ArrayList<String> ficherosTemporales;
     private String outputIndexPath;
     private ZipFile zip;
+    private DataInputStream indexFile;
     
     //read
     private HashMap<String, String> indexedIDtoFile;
@@ -95,6 +96,7 @@ public class BasicIndex implements Index{
 
     @Override
     public void load(String indexPath) {
+        this.outputIndexPath = indexPath;
         this.indexedIDtoFile = new HashMap<>();
         try{
             //load idfile to name
@@ -109,6 +111,8 @@ public class BasicIndex implements Index{
             this.indexRAMBusqueda = new HashMap<>();
             nombreFichero = indexPath + "\\indexed.data";
             dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
+            dis.mark(dis.available());
+            this.indexFile = dis;
             long contPosition = 0;
             int intSize = Integer.SIZE/8;
             int longSize = Long.SIZE/8;
@@ -145,27 +149,37 @@ public class BasicIndex implements Index{
 
     @Override
     public List<String> getDocIds() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>(this.indexedIDtoFile.keySet());
     }
 
     @Override
     public TextDocument getDocument(String docId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new TextDocument(docId, this.indexedIDtoFile.get(docId));
     }
 
     @Override
     public List<String> getTerms() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>(this.indexRAMBusqueda.keySet());
     }
 
     @Override
-    public List<Posting> getTermsPosting(String term) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Posting> getTermsPosting(String term){
+        try {
+            if(this.indexRAMBusqueda.containsKey(term)){
+                return Posting.readListPostingsByPos(this.indexFile, this.indexRAMBusqueda.get(term));
+            }else{
+                return null;
+            }
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     public String getPath() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.outputIndexPath;
     }
 
     private void analyzeDocument(ZipEntry entry, TextParser textParser, String docId) {

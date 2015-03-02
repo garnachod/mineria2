@@ -37,6 +37,10 @@ public class Posting {
         this.termFrequency = termFrequency;
         this.termPositions = new ArrayList<>();
     }
+    
+    public Posting () {
+        this.termPositions = new ArrayList<>();
+    }
 
     /**
      * @return the docId
@@ -96,7 +100,23 @@ public class Posting {
         
     }
     
-    public static List<Posting> readListPostingsByPos(DataInputStream stream, long pos){
-        return null;
+    @Override
+    public String toString(){
+        return this.docId + " " + this.termFrequency + " " + this.termPositions;
+    }
+    
+    public static List<Posting> readListPostingsByPos(DataInputStream stream, long pos) throws IOException {
+        stream.reset();
+        stream.skipBytes((int)pos);
+        int nPostings = stream.readInt();
+        long tamBytes = stream.readLong();
+        
+        ArrayList<Posting> listaP = new ArrayList<>();
+        for(int i = 0; i < nPostings; i++){
+            Posting post = new Posting();
+            post.readBinary(stream);
+            listaP.add(post);
+        }
+        return listaP;
     }
 }

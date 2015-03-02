@@ -6,8 +6,10 @@
 package es.uam.eps.bmi.search;
 
 import es.uam.eps.bmi.search.indexing.BasicIndex;
+import es.uam.eps.bmi.search.indexing.Posting;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
 import es.uam.eps.bmi.search.parsing.TextParser;
+import java.util.List;
 
 /**
  *
@@ -29,7 +31,11 @@ public class TestIndexProgramado {
         System.out.println("Construyendo índice...");
         indexer.build(args[0], args[1], tp);
         
-        //System.out.println("Leyendo índice...");
-        //indexer.load(args[1]);
+        System.out.println("Leyendo índice...");
+        indexer.load(args[1]);
+        List<Posting> lista = indexer.getTermsPosting("rated");
+        for(Posting p:lista){
+            System.out.println(p);
+        }
     }
 }
