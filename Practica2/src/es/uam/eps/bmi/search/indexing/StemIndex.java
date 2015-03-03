@@ -12,8 +12,7 @@ public class StemIndex extends BasicIndex {
 
     @Override
     protected String normalize(String term) {
-        String stemTerm = super.normalize(term);
-        stemmer.setCurrent(term);
+        stemmer.setCurrent(super.normalize(term));
 	stemmer.stem();
 	return stemmer.getCurrent();
     }
