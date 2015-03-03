@@ -52,10 +52,11 @@ public class IndexBuilder {
             
             // Genera stopword index
             System.out.println("Creando stopwords index");
+            String stopwordsList = "./src/stop-words.txt";
             String stopwordPath = indexPath + "/stopword"; 
             File stopwordFolder = new File(stopwordPath);
             stopwordFolder.mkdir();
-            StopwordIndex stopword = new StopwordIndex();
+            StopwordIndex stopword = new StopwordIndex(stopwordsList);
             stopword.build(collectionPath, stopwordPath, parser);
             stopword.load(stopwordPath);
             

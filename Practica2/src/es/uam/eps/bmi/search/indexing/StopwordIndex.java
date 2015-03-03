@@ -6,11 +6,15 @@ package es.uam.eps.bmi.search.indexing;
 
 import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.TextParser;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -21,6 +25,17 @@ import java.util.zip.ZipEntry;
  */
 public class StopwordIndex extends BasicIndex {
     
+    ArrayList<String> stopwords;
+    
+    public StopwordIndex (String stopwordsFilePath) throws FileNotFoundException {
+        super();
+        this.stopwords = new ArrayList<>();
+        Scanner s = new Scanner(new File(stopwordsFilePath));
+        while (s.hasNext()){
+            stopwords.add(s.next());
+        }
+        s.close();
+    }
     
     /**
      * Inserta un documento en el índice parcial
@@ -44,11 +59,21 @@ public class StopwordIndex extends BasicIndex {
                         
                         // Tokenizar fichero
                         String [] terms = super.tokenizer.split(text);
+                       
                         //normalizar
                         for(int i = 0; i< terms.length; i++){
                             terms[i] = SimpleNormalizer.normalize(terms[i]);
                         }
-                        ArrayList<String> termsList = SimpleNormalizer.removeNotAllowed(terms);
+                        
+                        ArrayList<String> termsListNorm = SimpleNormalizer.removeNotAllowed(terms);
+                        
+                        // Filtrar stopwords
+                        ArrayList<String> termsList = new ArrayList<>();
+                        for (String term : termsListNorm) {
+                            if (!stopwords.contains(term)) {
+                                termsList.add(term);
+                            }
+                        }
                         
                         //tabla hash del fichero
                         HashMap<String, Posting> fileIndex = new HashMap<>();
@@ -88,5 +113,6 @@ public class StopwordIndex extends BasicIndex {
                 }
             }
     }
+
 
 }
