@@ -221,7 +221,7 @@ public class BasicIndex implements Index{
      * Inserta un documento en el índice parcial
      * @param entry 
      */
-    protected void insertDocument(ZipEntry entry, TextParser textParser, String docId) {
+    private void insertDocument(ZipEntry entry, TextParser textParser, String docId) {
           // Si es un fichero
             if (!entry.isDirectory()) {
 
@@ -240,7 +240,7 @@ public class BasicIndex implements Index{
                         String [] terms = this.tokenizer.split(text);
                         //normalizar
                         for(int i = 0; i< terms.length; i++){
-                            terms[i] = SimpleNormalizer.normalize(terms[i]);
+                            terms[i] = this.normalize(terms[i]);
                         }
                         ArrayList<String> termsList = this.removeNotAllowed(terms);
                         
@@ -446,5 +446,9 @@ public class BasicIndex implements Index{
 
     protected ArrayList<String> removeNotAllowed(String terms[]) {
          return SimpleNormalizer.removeNotAllowed(terms);
+    }
+
+    protected String normalize(String term) {
+        return SimpleNormalizer.normalize(term);
     }
 }

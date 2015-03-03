@@ -62,6 +62,12 @@ public class IndexBuilder {
             
             // Genera stem index
             System.out.println("Creando stem index");
+            String stemPath = indexPath + "/stem"; 
+            File stemFolder = new File(stemPath);
+            stemFolder.mkdir();
+            StemIndex stem = new StemIndex();
+            stem.build(collectionPath, basicPath, parser);
+            stem.load(basicPath);
             
             // Genera advanced index
             System.out.println("Creando advanced index");
