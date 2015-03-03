@@ -242,7 +242,7 @@ public class BasicIndex implements Index{
                         for(int i = 0; i< terms.length; i++){
                             terms[i] = SimpleNormalizer.normalize(terms[i]);
                         }
-                        ArrayList<String> termsList = SimpleNormalizer.removeNotAllowed(terms);
+                        ArrayList<String> termsList = this.removeNotAllowed(terms);
                         
                         //tabla hash del fichero
                         HashMap<String, Posting> fileIndex = new HashMap<>();
@@ -442,5 +442,9 @@ public class BasicIndex implements Index{
             File f = new File(temp);
             f.delete();
         }
+    }
+
+    protected ArrayList<String> removeNotAllowed(String terms[]) {
+         return SimpleNormalizer.removeNotAllowed(terms);
     }
 }
