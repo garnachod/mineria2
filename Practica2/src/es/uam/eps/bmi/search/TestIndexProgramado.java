@@ -35,6 +35,11 @@ public class TestIndexProgramado {
         System.out.println("Leyendo índice...");
         indexer.load(args[1]);
         System.out.println("índice leido...");
+        List<String> lista =indexer.getTerms();
+        for(String s: lista){
+            System.out.println(s);
+            
+        }
         /*List<String> lista =indexer.getTerms();
         Collections.sort(lista);
         int i = lista.size()-2000;
