@@ -43,15 +43,15 @@ public class BasicIndex implements Index{
     private String outputIndexPath;
     private ZipFile zip;
     private DataInputStream indexFile = null;
-    
-    //read
     private HashMap<String, String> indexedIDtoFile;
     
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
     private HashMap<String, Integer> indexRAMBusqueda;
 
-    
+    /**
+     * Construir e inicializar
+     */
     public BasicIndex(){
         this.tokenizer = new SimpleTokenizer();
         this.partialIndex = new HashMap<>();
@@ -60,8 +60,6 @@ public class BasicIndex implements Index{
         this.outputIndexPath = "";
         this.maxIndexLong = (long) (Runtime.getRuntime().maxMemory() * 0.1);
         this.estimatedIndexSize = 0;
-        
-        System.out.println("max index: " + maxIndexLong);
     }
     
     @Override
@@ -70,6 +68,7 @@ public class BasicIndex implements Index{
         this.partialIndex = new HashMap<>();
         this.outputIndexPath = outputIndexPath;
         long contFiles = 0;
+        
         try{
             String nombreFicheroIndexNameFiles = outputIndexPath + "\\idFileToName.data";
             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFicheroIndexNameFiles)));
@@ -100,7 +99,7 @@ public class BasicIndex implements Index{
         this.outputIndexPath = indexPath;
         this.indexedIDtoFile = new HashMap<>();
         try{
-            //load idfile to name
+            // Load idFileToName
             String nombreFichero = indexPath + "\\idFileToName.data";
             DataInputStream dis = new DataInputStream(new FileInputStream(nombreFichero));
             
@@ -108,35 +107,33 @@ public class BasicIndex implements Index{
                 indexedIDtoFile.put(dis.readUTF(), dis.readUTF());
             }
             dis.close();
-            //load index ram
+            
+            // Load index in RAM
             this.indexRAMBusqueda = new HashMap<>();
             nombreFichero = indexPath + "\\indexed.data";
             FileInputStream file = new FileInputStream(nombreFichero);
             FileChannel fileChannel = file.getChannel();
             dis = new DataInputStream(file);
             long contPosition = 0;
-            int intSize = Integer.SIZE/8;
-            int longSize = Long.SIZE/8;
+            
             while(dis.available() > 0){
-                //leemos el termino y lo insertamos en la Hash
+                // Leemos el termino y lo insertamos en la Hash
                 int nPostings = 0;
                 String termino = "";
                 long tamPostings = 0;
                 try{
                     termino = dis.readUTF();
                     
-                    //insercion en la hash
-                    if(this.indexRAMBusqueda.containsKey(termino)){
+                    // Insercion en la hash
+                    if (this.indexRAMBusqueda.containsKey(termino)){
                         System.out.println("Indice mal formado");
                         return;
                     }
+                    
                     this.indexRAMBusqueda.put(termino, new Integer((int)fileChannel.position()));
                     
-                    //this.indexRAMBusqueda.put(termino, new Integer((int)contPosition));
                     nPostings = dis.readInt();
                     tamPostings = dis.readLong();
-                    //a lo mejor comprobar que este float no ocupa mas que un int
-                    //es poco probable
                     dis.skipBytes((int)tamPostings);
                     
                 }catch(Exception e){
@@ -194,15 +191,19 @@ public class BasicIndex implements Index{
         return this.outputIndexPath;
     }
 
+    /**
+     * Intenta analizar un documento comprimido
+     * @param entry
+     * @param textParser
+     * @param docId 
+     */
     private void analyzeDocument(ZipEntry entry, TextParser textParser, String docId) {
-        
         // Si queda espacio en RAM
         if (this.hasFreeSpace()) {
             //System.out.println(Runtime.getRuntime().freeMemory());
             this.insertDocument(entry, textParser, docId);
         } else {
             try {
-                System.out.println("Último docID: " + docId);
                 this.saveIndexTemporal(this.getNameIndexTemporal());
                 this.analyzeDocument(entry, textParser, docId);
             } catch (Exception ex) {
@@ -231,36 +232,35 @@ public class BasicIndex implements Index{
 
                     try {
                         
-                        //textParser.parse(name);
                         String html = this.getDocumentText(zip.getInputStream(entry));
                         // Parsearlo
                         String text = textParser.parse(html);
-                        //System.out.println(text);
+                        
                         // Tokenizar fichero
                         String [] terms = this.tokenizer.split(text);
                         //normalizar
                         for(int i = 0; i< terms.length; i++){
                             terms[i] = SimpleNormalizer.normalize(terms[i]);
-                            //System.out.println(terms[i]);
                         }
                         ArrayList<String> termsList = SimpleNormalizer.removeNotAllowed(terms);
+                        
                         //tabla hash del fichero
                         HashMap<String, Posting> fileIndex = new HashMap<>();
+                        
                         //primero generamos las repeticiones del fichero
                         int i = 0;
                         for(String s:termsList){
-                            //String s = terms[i];
                             if(fileIndex.containsKey(s)){
                                 fileIndex.get(s).addTermPosition((long)i);
                             }else{
-                                //si no está en el hash se crea una entrada
+                                // si no está en el hash se crea una entrada
                                 Posting postFile = new Posting(docId, 0);
                                 postFile.addTermPosition((long)i);
                                 fileIndex.put(s, postFile);
                             }
                             i++;
                         }
-                        //insertamos el indice del fichero en el indice parcial
+                        // insertamos el indice del fichero en el indice parcial
                         for(String term:fileIndex.keySet()){
                             if(this.partialIndex.containsKey(term)){
                                 this.partialIndex.get(term).add(fileIndex.get(term));
@@ -288,43 +288,42 @@ public class BasicIndex implements Index{
      */
     private void saveIndexTemporal(String nombreFichero) throws Exception {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
-        //DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombreFichero));
-        //boolean debug = true;
         System.out.println("numero de terminos: " + this.sortedTerms.size());
         while (!this.sortedTerms.isEmpty()) {
             String term = this.sortedTerms.poll();
-            /*if(debug == true){
-                System.out.println(term);
-            }*/
+         
             List<Posting> postings = this.partialIndex.get(term);
-            //impresión del termino
+            
+            // impresión del termino
             dos.writeUTF(term);
-            //impresion del tamaño en numero de elementos de la lista de postings
+            
+            // impresion del tamaño en numero de elementos de la lista de postings
             dos.writeInt(postings.size());
-            /*if(debug == true){
-                System.out.println(postings.size());
-            }*/
-            //get tam en bytes
+            
+            // get tam en bytes
             long bytesLenght = 0;
             for(Posting post:postings){
                 bytesLenght += post.getBinarySizeBytes();
             }
             dos.writeLong(bytesLenght);
-            /*if(debug == true){
-                System.out.println(bytesLenght);
-            }*/
-            //debug = false;
-            //estoy pensando en imprimir en bytes el tamaño tambien para poder hacer saltos en el indice
+           
+            // TODO: Imprimir en bytes el tamaño tambien para poder hacer saltos en el indice
             for(Posting post:postings){
                 post.printBinary(dos);
             }
         }
         dos.close();
-        //add file to lista files
+        // add file to lista files
         this.ficherosTemporales.add(nombreFichero);
         // Free memory
         this.cleanIndex();
     }
+    
+    /**
+     * Hace merge de todos los índices parciales y lo guarda a disco.
+     * @param nombreFichero
+     * @throws Exception 
+     */
     private void saveIndexFinal(String nombreFichero) throws Exception {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
         
@@ -337,13 +336,18 @@ public class BasicIndex implements Index{
         int i = 1;
         for(String nombreITemp : this.ficherosTemporales){
             DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreITemp)));
-            //DataInputStream dis = new DataInputStream(new FileInputStream(nombreITemp));
             TemporalIndexDescriptor tid = new TemporalIndexDescriptor(dis, i);
             tid.readTermino();
             sortedTID.add(tid);
             i++;
         }
-        
+         //se coge del heap el ultimo se avanza y se inserta en el heap
+            //se cogen del heap hasta que el termino no sea igual, se insertan en otro heap
+            //finalidad:
+                //sumar posting list en numero y en bytes
+            //se insertan en orden las posting list
+            //se lee el siguente termino, se inserta en el heap principal
+        //lo he llamado TemporalIndexDescriptor
         while(!sortedTID.isEmpty()){
             
             ArrayList<TemporalIndexDescriptor> temporalTIDList = new ArrayList<>();
@@ -357,7 +361,6 @@ public class BasicIndex implements Index{
             while(!sortedTID.isEmpty()){
                 TemporalIndexDescriptor otro = sortedTID.poll();
                 if(primero.isEqualTerm(otro)){
-                    //System.out.println(primero.getTermino());
                     temporalTIDList.add(otro);
                     totalNPostings += otro.getnPostings();
                     totalBytes += otro.getTamBytesPostings();
@@ -382,13 +385,6 @@ public class BasicIndex implements Index{
             }
         }
         
-        //se coge del heap el ultimo se avanza y se inserta en el heap
-            //se cogen del heap hasta que el termino no sea igual, se insertan en otro heap
-            //finalidad:
-                //sumar posting list en numero y en bytes
-            //se insertan en orden las posting list
-            //se lee el siguente termino, se inserta en el heap principal
-        //lo he llamado TemporalIndexDescriptor
         dos.close();
         
         // Borrar indices temporales
@@ -436,7 +432,10 @@ public class BasicIndex implements Index{
         }
         return sb.toString();    
     }
-
+    
+    /**
+     * Remove temp. files
+     */
     private void removeTemp() {
         System.gc();
         for (String temp: this.ficherosTemporales) {
