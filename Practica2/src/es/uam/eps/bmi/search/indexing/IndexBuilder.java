@@ -42,6 +42,7 @@ public class IndexBuilder {
             
             
             // Genera basic index
+            System.out.println("Creando basic index");
             String basicPath = indexPath + "/basic"; 
             File basicFolder = new File(basicPath);
             basicFolder.mkdir();
@@ -50,13 +51,19 @@ public class IndexBuilder {
             basic.load(basicPath);
             
             // Genera stopword index
-            
+            System.out.println("Creando stopwords index");
+            String stopwordPath = indexPath + "/stopword"; 
+            File stopwordFolder = new File(stopwordPath);
+            stopwordFolder.mkdir();
+            StopwordIndex stopword = new StopwordIndex();
+            stopword.build(collectionPath, stopwordPath, parser);
+            stopword.load(stopwordPath);
             
             // Genera stem index
-            
+            System.out.println("Creando stem index");
             
             // Genera advanced index
-            
+            System.out.println("Creando advanced index");
             
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);

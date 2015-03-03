@@ -1,18 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package es.uam.eps.bmi.search.indexing;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Comparator;
 
 /**
  *
- * @author dani
+ * @author Diego Castaño y Daniel Garnacho
  */
 public class TemporalIndexDescriptor implements Comparable{
     private String termino;
@@ -26,6 +21,7 @@ public class TemporalIndexDescriptor implements Comparable{
         this.index = index;
         this.idTemporal = idTemporal;
     }
+    
     //termino
     //file(datainputstream)
     //numero de postings

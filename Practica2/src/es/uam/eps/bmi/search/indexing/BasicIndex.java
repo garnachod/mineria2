@@ -35,13 +35,13 @@ import java.util.zip.ZipFile;
 public class BasicIndex implements Index{
 
     private long maxIndexLong;
-    private long estimatedIndexSize;
-    private SimpleTokenizer tokenizer;
-    private HashMap<String, List<Posting>> partialIndex;
-    private PriorityQueue<String> sortedTerms;
+    protected long estimatedIndexSize;
+    protected SimpleTokenizer tokenizer;
+    protected HashMap<String, List<Posting>> partialIndex;
+    protected PriorityQueue<String> sortedTerms;
     private ArrayList<String> ficherosTemporales;
     private String outputIndexPath;
-    private ZipFile zip;
+    protected ZipFile zip;
     private DataInputStream indexFile = null;
     private HashMap<String, String> indexedIDtoFile;
     
@@ -221,7 +221,7 @@ public class BasicIndex implements Index{
      * Inserta un documento en el índice parcial
      * @param entry 
      */
-    private void insertDocument(ZipEntry entry, TextParser textParser, String docId) {
+    protected void insertDocument(ZipEntry entry, TextParser textParser, String docId) {
           // Si es un fichero
             if (!entry.isDirectory()) {
 
@@ -410,7 +410,7 @@ public class BasicIndex implements Index{
      * @param input Devuelve el texto como una cadena leyendo de un inputstream
      * @return Cadena con todo el contenido
      */
-    private String getDocumentText(InputStream input) {
+    protected String getDocumentText(InputStream input) {
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
         String line;
