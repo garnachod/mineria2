@@ -71,6 +71,12 @@ public class IndexBuilder {
             
             // Genera advanced index
             System.out.println("Creando advanced index");
+            String advancedPath = indexPath + "/advanced"; 
+            File advancedFolder = new File(advancedPath);
+            advancedFolder.mkdir();
+            AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
+            advanced.build(collectionPath, advancedPath, parser);
+            advanced.load(advancedPath);
             
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);
