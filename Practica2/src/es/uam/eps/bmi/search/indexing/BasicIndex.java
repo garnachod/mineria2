@@ -40,14 +40,14 @@ public class BasicIndex implements Index{
     protected HashMap<String, List<Posting>> partialIndex;
     protected PriorityQueue<String> sortedTerms;
     private ArrayList<String> ficherosTemporales;
-    private String outputIndexPath;
+    protected String outputIndexPath;
     protected ZipFile zip;
-    private DataInputStream indexFile = null;
+    protected DataInputStream indexFile = null;
     private HashMap<String, String> indexedIDtoFile;
     
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
-    private HashMap<String, Integer> indexRAMBusqueda;
+    protected HashMap<String, Integer> indexRAMBusqueda;
 
     /**
      * Construir e inicializar
@@ -164,7 +164,7 @@ public class BasicIndex implements Index{
     }
 
     @Override
-    public List<Posting> getTermsPosting(String term){
+    public List<Posting> getTermPostings(String term){
         try {
             if(this.indexRAMBusqueda.containsKey(term)){
                 if(this.indexFile == null){

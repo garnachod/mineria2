@@ -182,7 +182,7 @@ public class LuceneIndexing implements Index {
      * @return lista de postings de un termino
      */
     @Override
-    public List<Posting> getTermsPosting(String term) {
+    public List<Posting> getTermPostings(String term) {
         ArrayList<Posting> postingList = new ArrayList<>();
         try {
            
@@ -274,7 +274,7 @@ public class LuceneIndexing implements Index {
         System.out.println("Lista de terminos: ");
         for (String term: li.getTerms()) {
             System.out.println("Posting para termino " + term);
-            for (Posting p : li.getTermsPosting(term)) {
+            for (Posting p : li.getTermPostings(term)) {
                 System.out.println(p.getDocId() + " " + p.getTermFrequency() + " " + p.getTermPositions());
             }
         }

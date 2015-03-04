@@ -37,7 +37,7 @@ public class TestIndex {
         for (String term: li.getTerms()) {
             int nDocs = 0;
             int termFrequency = 0;
-            for (Posting p : li.getTermsPosting(term)) {
+            for (Posting p : li.getTermPostings(term)) {
                 termFrequency += p.getTermFrequency();
                 nDocs++;
             }

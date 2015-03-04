@@ -55,7 +55,7 @@ public interface Index {
      * @param term Termino a buscar para devolver sus postings
      * @return lista de postings de un termino
      */
-    List<Posting> getTermsPosting (String term);
+    List<Posting> getTermPostings (String term);
     
     /**
      * Devuelve dirección del índice creado

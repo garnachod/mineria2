@@ -28,4 +28,5 @@ public class SimpleNormalizer {
         }
         return lista;
     }
+    
 }
