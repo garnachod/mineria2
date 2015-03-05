@@ -43,7 +43,7 @@ public class BasicIndex implements Index{
     protected String outputIndexPath;
     protected ZipFile zip;
     protected DataInputStream indexFile = null;
-    private HashMap<String, String> indexedIDtoFile;
+    private HashMap<String, InfoDocumentoIndex> indexedIDtoFile;
     
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
@@ -82,6 +82,8 @@ public class BasicIndex implements Index{
                 this.analyzeDocument(entry, textParser, idFile);
                 dos.writeUTF(idFile);
                 dos.writeUTF(entry.getName());
+                dos.writeLong(entry.getSize());
+                //guardar aqui el tamaño en bytes del doc entry.getSize() para normalizar
                 
                 contFiles++;
                 
@@ -104,7 +106,9 @@ public class BasicIndex implements Index{
             DataInputStream dis = new DataInputStream(new FileInputStream(nombreFichero));
             
             while(dis.available() > 0){
-                indexedIDtoFile.put(dis.readUTF(), dis.readUTF());
+                String docID = dis.readUTF();
+                InfoDocumentoIndex info = new InfoDocumentoIndex(dis.readUTF(), dis.readLong());
+                indexedIDtoFile.put(dis.readUTF(), info);
             }
             dis.close();
             
@@ -155,7 +159,11 @@ public class BasicIndex implements Index{
 
     @Override
     public TextDocument getDocument(String docId) {
-        return new TextDocument(docId, this.indexedIDtoFile.get(docId));
+        return new TextDocument(docId, this.indexedIDtoFile.get(docId).getNombreCompleto());
+    }
+    
+    public Long getBytesDocument(String docId){
+        return this.indexedIDtoFile.get(docId).getTamBytes();
     }
 
     @Override
@@ -450,5 +458,23 @@ public class BasicIndex implements Index{
 
     protected String normalize(String term) {
         return SimpleNormalizer.normalize(term);
+    }
+    
+    private class InfoDocumentoIndex{
+        private String nombreCompleto;
+        private long tamBytes;
+        
+        public InfoDocumentoIndex(String nombreCompleto, long tamBytes){
+            this.nombreCompleto = nombreCompleto;
+            this.tamBytes = tamBytes; 
+        }
+        
+        public String getNombreCompleto(){
+            return this.nombreCompleto;
+        }
+        
+        public long getTamBytes(){
+            return this.tamBytes;
+        }
     }
 }
