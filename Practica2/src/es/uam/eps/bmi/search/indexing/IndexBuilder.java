@@ -2,7 +2,9 @@
 package es.uam.eps.bmi.search.indexing;
 
 
+import es.uam.eps.bmi.search.ScoredTextDocument;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
+import es.uam.eps.bmi.search.searching.BooleanSearcher;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
@@ -11,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,8 +52,14 @@ public class IndexBuilder {
             BasicIndex basic = new BasicIndex();
             basic.build(collectionPath, basicPath, parser);
             basic.load(basicPath);
+            BooleanSearcher bs = new BooleanSearcher(BooleanSearcher.Mode.AND);
+            bs.build(basic);
+            List<ScoredTextDocument> search = bs.search("hardcore gay porn"); // Lel 11 resultados en 1K
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
             
             // Genera stopword index
+            /*
             System.out.println("Creando stopwords index");
             String stopwordsList = "./src/stop-words.txt";
             String stopwordPath = indexPath + "/stopword"; 
@@ -59,7 +68,6 @@ public class IndexBuilder {
             StopwordIndex stopword = new StopwordIndex(stopwordsList);
             stopword.build(collectionPath, stopwordPath, parser);
             stopword.load(stopwordPath);
-            
             // Genera stem index
             System.out.println("Creando stem index");
             String stemPath = indexPath + "/stem"; 
@@ -68,7 +76,6 @@ public class IndexBuilder {
             StemIndex stem = new StemIndex();
             stem.build(collectionPath, basicPath, parser);
             stem.load(basicPath);
-            
             // Genera advanced index
             System.out.println("Creando advanced index");
             String advancedPath = indexPath + "/advanced"; 
@@ -77,7 +84,7 @@ public class IndexBuilder {
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
             advanced.build(collectionPath, advancedPath, parser);
             advanced.load(advancedPath);
-            
+             */
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {

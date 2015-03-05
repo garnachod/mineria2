@@ -8,6 +8,7 @@ import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.SimpleTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -19,38 +20,34 @@ public class BooleanSearcher implements Searcher {
     Index index;
 
     private List<ScoredTextDocument> searchAND(String[] terms) {
+        
+        ArrayList<Posting> resultPostings;
+        ArrayList<ScoredTextDocument> results = new ArrayList<>();
         PriorityQueue<Posting> postingsHeap = new PriorityQueue<>();
-        HashMap<String, ArrayList<Posting>> postingsListList = new HashMap<>();
+        HashMap<String, ArrayList<Posting>> postingLists = new HashMap<>();
         HashMap<String, Integer> positions = new HashMap<>();
         
-        // Sacar lista de listas de postings
-        for (String term : terms) {
+        // Sacar listas de postings de cada term
+        for (String term : SimpleNormalizer.removeNotAllowed(terms)) {
             List<Posting> termPostings = index.getTermPostings(term);
-        
             if (termPostings == null) {
                 return new ArrayList<>();
             }
-            
-            postingsListList.put(term, (ArrayList<Posting>) termPostings);
+            postingLists.put(term, (ArrayList<Posting>) termPostings);
         }
         
-        // Inicializar punteros
-        for (String term : terms) {
-            positions.put(term, 0);
-        }
-        
-        // Merge
-        boolean flagFin = false;
-        while (!flagFin) {
-            for (String term : terms) {
-                postingsHeap.add(postingsListList.get(term).get(positions.get(term)));
-                if (positions.get(term) >= postingsListList.get(term).size()) {
-                    flagFin=true;
-                }
+        // Intersectar las listas 2 a 2 (match)
+        HashSet<Posting> match = new HashSet<>(postingLists.get(postingLists.keySet().iterator().next()));
+        for (String term: postingLists.keySet()) {
+            if (!match.isEmpty()) {
+                match.retainAll(postingLists.get(term));
             }
         }
-        
-        return new ArrayList<>();
+        resultPostings = new ArrayList<>(match);
+        for (Posting p : resultPostings) {
+            results.add(new ScoredTextDocument(p.getDocId(), 1));
+        }
+        return results;
     }
 
     private List<ScoredTextDocument> searchOR(String[] terms) {

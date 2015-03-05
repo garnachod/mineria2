@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Posting {
+public class Posting  {
     
     private String docId;
     private int termFrequency;
@@ -120,5 +120,18 @@ public class Posting {
             listaP.add(post);
         }
         return listaP;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+        return docId.equals(((Posting)o).docId);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Integer.parseInt(docId);
     }
 }
