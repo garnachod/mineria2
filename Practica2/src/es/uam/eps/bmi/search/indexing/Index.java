@@ -61,4 +61,8 @@ public interface Index {
      * Devuelve dirección del índice creado
      */
     public String getPath();
+    
+    public Long getNDocsIndex();
+    
+    public Long getBytesDocument(String docId);
 }

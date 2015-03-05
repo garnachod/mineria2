@@ -48,6 +48,8 @@ public class BasicIndex implements Index{
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
     protected HashMap<String, Integer> indexRAMBusqueda;
+    
+    private long nDocumentosProcesados = 0;
 
     /**
      * Construir e inicializar
@@ -108,7 +110,8 @@ public class BasicIndex implements Index{
             while(dis.available() > 0){
                 String docID = dis.readUTF();
                 InfoDocumentoIndex info = new InfoDocumentoIndex(dis.readUTF(), dis.readLong());
-                indexedIDtoFile.put(dis.readUTF(), info);
+                indexedIDtoFile.put(docID, info);
+                this.nDocumentosProcesados++;
             }
             dis.close();
             
@@ -160,6 +163,10 @@ public class BasicIndex implements Index{
     @Override
     public TextDocument getDocument(String docId) {
         return new TextDocument(docId, this.indexedIDtoFile.get(docId).getNombreCompleto());
+    }
+    
+    public Long getNDocsIndex(){
+        return this.nDocumentosProcesados;
     }
     
     public Long getBytesDocument(String docId){

@@ -5,6 +5,7 @@ package es.uam.eps.bmi.search.indexing;
 import es.uam.eps.bmi.search.ScoredTextDocument;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
 import es.uam.eps.bmi.search.searching.BooleanSearcher;
+import es.uam.eps.bmi.search.searching.TFIDFSearcher;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
@@ -52,6 +53,7 @@ public class IndexBuilder {
             BasicIndex basic = new BasicIndex();
             basic.build(collectionPath, basicPath, parser);
             basic.load(basicPath);
+            //test de busqueda BS
             BooleanSearcher bs = new BooleanSearcher(BooleanSearcher.Mode.AND);
             bs.build(basic);
             List<ScoredTextDocument> search = bs.search("hardcore gay porn"); // Lel 11 resultados en 1K
@@ -62,6 +64,14 @@ public class IndexBuilder {
             search = bs.search("hardcore gay porn");
             System.out.println(search);
             System.out.println(search.size() + " resultados");
+            //test de busqueda IDF
+            TFIDFSearcher tfifd = new TFIDFSearcher();
+            tfifd.build(basic);
+            search = tfifd.search("hardcore gay porn"); // Lel 11 resultados en 1K
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
+            
+            
             // Genera stopword index
             /*
             System.out.println("Creando stopwords index");

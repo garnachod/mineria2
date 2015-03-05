@@ -281,4 +281,14 @@ public class LuceneIndexing implements Index {
 
     }
 
+    @Override
+    public Long getNDocsIndex() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Long getBytesDocument(String docId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
