@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.PriorityQueue;
 
  /**
@@ -51,7 +52,42 @@ public class BooleanSearcher implements Searcher {
     }
 
     private List<ScoredTextDocument> searchOR(String[] terms) {
-        return new ArrayList<>();
+        List<ScoredTextDocument> listaDocs = new ArrayList<>();
+        PriorityQueue<MergeORClass> postingsHeap = new PriorityQueue<>();
+        
+        // Sacar listas de postings de cada term
+        for (String term : SimpleNormalizer.removeNotAllowed(terms)) {
+            ArrayList<Posting> termPostings = new ArrayList(index.getTermPostings(term));
+            ListIterator<Posting> listIterator = termPostings.listIterator();
+            MergeORClass merge = new MergeORClass(listIterator);
+            postingsHeap.add(merge);
+        }
+        
+        //mientras que no se hayan terminado todas las listas
+        while(!postingsHeap.isEmpty()){
+            MergeORClass primero = postingsHeap.poll();
+            while(!postingsHeap.isEmpty()){
+                MergeORClass otro = postingsHeap.poll();
+                if(primero.equals(otro)){
+                    if(otro.hasNext()){
+                        otro.avanzaPuntero();
+                        postingsHeap.add(otro);
+                    }
+                }else{
+                    postingsHeap.add(otro);
+                    break;
+                }
+            }
+            String docid = primero.getDocID();
+            ScoredTextDocument scored = new ScoredTextDocument(docid, 1.0);
+            listaDocs.add(scored);
+            if(primero.hasNext()){
+                primero.avanzaPuntero();
+                postingsHeap.add(primero);
+            }
+        }
+        
+        return listaDocs;
     }
 
     public enum Mode { OR, AND };
@@ -80,11 +116,51 @@ public class BooleanSearcher implements Searcher {
             terms[i] = SimpleNormalizer.normalize(terms[i]);
         }
         
+        
         if (currentMode.equals(Mode.AND)) {
             return this.searchAND(terms);
         } else {
             return this.searchOR(terms);
         }   
+    }
+    
+    private class MergeORClass implements Comparable{
+        ListIterator<Posting> listIterator;
+        Posting p;
+        
+        public MergeORClass(ListIterator<Posting> listIterator){
+            this.listIterator = listIterator;
+            this.p = this.listIterator.next();
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            Posting post = ((MergeORClass)o).getPosting();
+            return this.p.compareTo(post);
+        }
+        private Posting getPosting(){
+            return this.p;
+        }
+        
+        public void avanzaPuntero(){
+            this.p = this.listIterator.next();
+        }
+        
+        public boolean hasNext(){
+            return this.listIterator.hasNext();
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (o.getClass() != this.getClass()) {
+                return false;
+            }
+            return this.p.equals(((MergeORClass)o).getPosting());
+        }
+        
+        public String getDocID(){
+            return this.p.getDocId();
+        }
     }
     
 }

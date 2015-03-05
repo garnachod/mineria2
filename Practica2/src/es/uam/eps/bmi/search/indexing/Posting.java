@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Posting  {
+public class Posting implements Comparable{
     
     private String docId;
     private int termFrequency;
@@ -133,5 +133,10 @@ public class Posting  {
     @Override
     public int hashCode() {
         return Integer.parseInt(docId);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.docId.compareTo(((Posting)o).docId);
     }
 }

@@ -57,7 +57,11 @@ public class IndexBuilder {
             List<ScoredTextDocument> search = bs.search("hardcore gay porn"); // Lel 11 resultados en 1K
             System.out.println(search);
             System.out.println(search.size() + " resultados");
-            
+            bs = new BooleanSearcher(BooleanSearcher.Mode.OR);
+            bs.build(basic);
+            search = bs.search("hardcore gay porn");
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
             // Genera stopword index
             /*
             System.out.println("Creando stopwords index");
