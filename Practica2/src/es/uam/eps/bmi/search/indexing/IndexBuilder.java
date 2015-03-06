@@ -5,6 +5,7 @@ package es.uam.eps.bmi.search.indexing;
 import es.uam.eps.bmi.search.ScoredTextDocument;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
 import es.uam.eps.bmi.search.searching.BooleanSearcher;
+import es.uam.eps.bmi.search.searching.LiteralMatchingSearcher;
 import es.uam.eps.bmi.search.searching.TFIDFSearcher;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -70,8 +71,15 @@ public class IndexBuilder {
             search = tfifd.search("hardcore gay porn"); // Lel 11 resultados en 1K
             System.out.println(search);
             System.out.println(search.size() + " resultados");
-            
-            
+            //test de Literal
+            LiteralMatchingSearcher literal = new LiteralMatchingSearcher();
+            literal.build(basic);
+            search = bs.search("porn");
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
+            search = literal.search("dulac casino");
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
             // Genera stopword index
             /*
             System.out.println("Creando stopwords index");
