@@ -191,14 +191,14 @@ public class BasicIndex implements Index{
                 this.indexFile = null;
                 return listaRetorno;
             }else{
-                return null;
+                return new ArrayList<Posting>();
             }
             
         } catch (IOException ex) {
             
             ex.printStackTrace();
         }
-        return null;
+        return new ArrayList<Posting>();
     }
 
     @Override

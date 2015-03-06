@@ -49,9 +49,11 @@ public class LiteralMatchingSearcher implements Searcher{
         // Sacar listas de postings de cada term
         for (String term : terminosFinal) {
             ArrayList<Posting> termPostings = new ArrayList(index.getTermPostings(term));
-            ListIterator<Posting> listIterator = termPostings.listIterator();
-            MergePostings merge = new MergePostings(listIterator, term);
-            postingsHeap.add(merge);
+            if(!termPostings.isEmpty()){
+                ListIterator<Posting> listIterator = termPostings.listIterator();
+                MergePostings merge = new MergePostings(listIterator, term);
+                postingsHeap.add(merge);
+            }
         }
         while(!postingsHeap.isEmpty()){
             MergePostings primero = postingsHeap.poll();

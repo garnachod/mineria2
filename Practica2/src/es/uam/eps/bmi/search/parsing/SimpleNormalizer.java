@@ -19,7 +19,7 @@ public class SimpleNormalizer {
     public static ArrayList<String> removeNotAllowed(String [] array){
         ArrayList<String> lista = new ArrayList<>();
         for(int i = 0; i < array.length; i++){
-            if(array[i].length() <= 3){
+            if(array[i].length() < 3){
                 //no insertar
             }else{
                 String normal = array[i].replace(" ", "");

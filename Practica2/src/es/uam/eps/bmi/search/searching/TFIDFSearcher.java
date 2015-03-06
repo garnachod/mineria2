@@ -45,9 +45,11 @@ public class TFIDFSearcher implements Searcher {
         // Sacar listas de postings de cada term
         for (String term : terminosFinal) {
             ArrayList<Posting> termPostings = new ArrayList(index.getTermPostings(term));
-            ListIterator<Posting> listIterator = termPostings.listIterator();
-            MergePostings merge = new MergePostings(listIterator, termPostings.size());
-            postingsHeap.add(merge);
+            if(!termPostings.isEmpty()){
+                ListIterator<Posting> listIterator = termPostings.listIterator();
+                MergePostings merge = new MergePostings(listIterator, termPostings.size());
+                postingsHeap.add(merge);
+            }
         }
         
         long totalDocs = this.index.getNDocsIndex();

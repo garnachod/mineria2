@@ -74,10 +74,13 @@ public class IndexBuilder {
             //test de Literal
             LiteralMatchingSearcher literal = new LiteralMatchingSearcher();
             literal.build(basic);
-            search = bs.search("porn");
+            search = bs.search("hardsfdgf");
             System.out.println(search);
             System.out.println(search.size() + " resultados");
             search = literal.search("dulac casino");
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
+            search = literal.search("gay");
             System.out.println(search);
             System.out.println(search.size() + " resultados");
             // Genera stopword index
