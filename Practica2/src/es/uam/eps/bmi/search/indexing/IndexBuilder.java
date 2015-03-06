@@ -57,7 +57,10 @@ public class IndexBuilder {
             //test de busqueda BS
             BooleanSearcher bs = new BooleanSearcher(BooleanSearcher.Mode.AND);
             bs.build(basic);
-            List<ScoredTextDocument> search = bs.search("hardcore gay porn"); // Lel 11 resultados en 1K
+            List<ScoredTextDocument> search = bs.search("hardcore gay porn"); // Lel 9 resultados en 1K
+            System.out.println(search);
+            System.out.println(search.size() + " resultados");
+            search = bs.search("hardcore gassdfdfsdfy porn"); // Lel 9 resultados en 1K
             System.out.println(search);
             System.out.println(search.size() + " resultados");
             bs = new BooleanSearcher(BooleanSearcher.Mode.OR);
@@ -68,7 +71,7 @@ public class IndexBuilder {
             //test de busqueda IDF
             TFIDFSearcher tfifd = new TFIDFSearcher();
             tfifd.build(basic);
-            search = tfifd.search("hardcore gay porn"); // Lel 11 resultados en 1K
+            search = tfifd.search("hardcore gay porn");
             System.out.println(search);
             System.out.println(search.size() + " resultados");
             //test de Literal

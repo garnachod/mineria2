@@ -31,7 +31,7 @@ public class BooleanSearcher implements Searcher {
         // Sacar listas de postings de cada term
         for (String term : SimpleNormalizer.removeNotAllowed(terms)) {
             List<Posting> termPostings = index.getTermPostings(term);
-            if (termPostings == null) {
+            if (termPostings.isEmpty()) {
                 return new ArrayList<>();
             }
             postingLists.put(term, (ArrayList<Posting>) termPostings);
