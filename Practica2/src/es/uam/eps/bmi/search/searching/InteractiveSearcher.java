@@ -109,8 +109,15 @@ public class InteractiveSearcher {
      * @param docs
      */
     private static void showResults(List<ScoredTextDocument> docs) {
-
-        System.out.println("Resultados:\n");
+        System.out.println("");
+        
+        if (docs.isEmpty()) {
+            System.out.println("No se encontraron documentos relevantes para esa consulta.");
+            return;
+        } else {
+            System.out.println("Mostrando los primeros " + topResults + " resultados de un total de " + docs.size() + ":\n");
+        }
+        
         int i = 0;
         for (ScoredTextDocument doc : docs) {
             TextDocument document = index.getDocument(doc.getDocId());
