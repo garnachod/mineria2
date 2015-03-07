@@ -18,8 +18,37 @@ import java.util.PriorityQueue;
  * @author Diego Castaño y Daniel Garnacho
  */
 public class BooleanSearcher implements Searcher {
+    
     Index index;
-
+    
+    /**
+     * Modos de búsqueda
+     */
+    public enum Mode { OR, AND };
+    private Mode currentMode;
+    
+    /**
+     * Constructor
+     * @param mode 
+     */
+    public BooleanSearcher (Mode mode) {
+        this.currentMode = mode;
+    }
+        
+    /**
+     * Carga un índice ya creado
+     * @param index se presupone index.load(...)
+     */
+    @Override
+    public void build(Index index) {
+        this.index = index;
+    }
+    
+    /**
+     * Realiza una búsqueda en modo AND
+     * @param terms Términos a buscar
+     * @return Lista de documentos que contienen todos los términos válidos
+     */
     private List<ScoredTextDocument> searchAND(String[] terms) {
         
         ArrayList<Posting> resultPostings;
@@ -50,7 +79,12 @@ public class BooleanSearcher implements Searcher {
         }
         return results;
     }
-
+    
+     /**
+     * Realiza una búsqueda en modo OR
+     * @param terms Términos a buscar
+     * @return Lista de documentos que contienen alguno de los términos válidos
+     */
     private List<ScoredTextDocument> searchOR(String[] terms) {
         List<ScoredTextDocument> listaDocs = new ArrayList<>();
         PriorityQueue<MergePostings> postingsHeap = new PriorityQueue<>();
@@ -92,20 +126,6 @@ public class BooleanSearcher implements Searcher {
         return listaDocs;
     }
 
-    public enum Mode { OR, AND };
-    private Mode currentMode;
-    
-    public BooleanSearcher (Mode mode) {
-        this.currentMode = mode;
-    }
-        
-    /**
-     * @param index SE SUPONE YA CARGADO (load) 
-     */
-    @Override
-    public void build(Index index) {
-        this.index = index;
-    }
 
     @Override
     public List<ScoredTextDocument> search(String query) {

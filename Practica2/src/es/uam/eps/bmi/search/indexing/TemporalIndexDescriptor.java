@@ -27,7 +27,10 @@ public class TemporalIndexDescriptor implements Comparable{
     //numero de postings
     //n bytes de postings
     
-    //leer siguiente termino
+    /**
+     * leer siguiente termino
+     * @throws IOException 
+     */
     public void readTermino() throws IOException{
         //lectura del termino
         this.termino = this.index.readUTF();
@@ -39,7 +42,11 @@ public class TemporalIndexDescriptor implements Comparable{
         this.tamBytesPostingsNoEscritos = this.tamBytesPostings;
     }
     
-    
+    /**
+     * Imprimir a disco un índice parcial
+     * @param finalIndex
+     * @throws IOException 
+     */
     public void printPostingList(DataOutputStream finalIndex) throws IOException{
         int byteRead = 0;
         boolean flag = false;
@@ -65,10 +72,19 @@ public class TemporalIndexDescriptor implements Comparable{
         
     }
     
+    /**
+     * Compara el término de este índice parcial con el de otro
+     * @param tid 
+     * @return true o false
+     */
     public boolean isEqualTerm(TemporalIndexDescriptor tid){
         return this.getTermino().equals(tid.getTermino());
     }
     
+    /**
+     * Comprueba si queda espacio disponible en este índice parcial
+     * @return 
+     */
     public boolean isAvailable(){
         try{
             return this.index.available() > 0;

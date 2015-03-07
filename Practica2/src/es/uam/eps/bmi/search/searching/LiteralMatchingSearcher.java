@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package es.uam.eps.bmi.search.searching;
 
 import es.uam.eps.bmi.search.ScoredTextDocument;
@@ -16,8 +12,7 @@ import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 /**
- *
- * @author dani
+ * @author Diego Castaño y Daniel Garnacho
  */
 public class LiteralMatchingSearcher implements Searcher{
     Index index;

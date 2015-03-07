@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @author Diego Castaño y Daniel Garnacho
  */
 public class AdvancedIndex extends StemIndex{
-    
+    // Simulamos herencia doble extendiendo de StemIndex y usando una referencia a StopwordIndex
     private StopwordIndex si;
     
     public AdvancedIndex (String stopwordsFilePath) throws FileNotFoundException {

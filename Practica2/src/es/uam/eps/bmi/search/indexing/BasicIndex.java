@@ -449,7 +449,7 @@ public class BasicIndex implements Index{
     }
     
     /**
-     * Remove temp. files
+     * Elimina índices temporales
      */
     private void removeTemp() {
         System.gc();
@@ -458,15 +458,28 @@ public class BasicIndex implements Index{
             f.delete();
         }
     }
-
+    
+    /**
+     * Elimina términos no permitidos
+     * @param terms array inicial de terminos
+     * @return términos permitidos
+     */
     protected ArrayList<String> removeNotAllowed(String terms[]) {
          return SimpleNormalizer.removeNotAllowed(terms);
     }
 
+    /**
+     * Normaliza términos (minúsculas, etc)
+     * @param term término a normalizar
+     * @return término normalizado
+     */
     protected String normalize(String term) {
         return SimpleNormalizer.normalize(term);
     }
     
+    /**
+     * Bean interno para asociar un documento a su representación en disco
+     */
     private class InfoDocumentoIndex{
         private String nombreCompleto;
         private long tamBytes;
