@@ -90,4 +90,15 @@ public class TFIDFSearcher implements Searcher {
     {
         return Math.log(x) / Math.log(2);
     }
+    
+    /**
+    * Solicita al usuario una consulta, y muestra por pantalla
+    * los top 5 resultados de la consulta imprimiendo el título y parte del
+    * contenido
+    *
+    * @param args Ruta del fichero de config
+    */
+    public static void main (String[] args) {
+        InteractiveSearcher.main(args, new TFIDFSearcher());
+    }
 }
