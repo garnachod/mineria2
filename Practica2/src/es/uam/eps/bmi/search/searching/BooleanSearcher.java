@@ -121,6 +121,7 @@ public class BooleanSearcher implements Searcher {
             MergePostings primero = postingsHeap.poll();
             while(!postingsHeap.isEmpty()){
                 MergePostings otro = postingsHeap.poll();
+
                 if(primero.equals(otro)){
                     if(otro.hasNext()){
                         otro.avanzaPuntero();
@@ -171,7 +172,7 @@ public class BooleanSearcher implements Searcher {
     * @param args Ruta del fichero de config
     */
     public static void main (String[] args) {
-        InteractiveSearcher.main(args, new BooleanSearcher(Mode.AND));
+        InteractiveSearcher.main(args, new BooleanSearcher(Mode.OR));
     }
 }
 

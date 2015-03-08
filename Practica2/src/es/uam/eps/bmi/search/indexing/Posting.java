@@ -137,6 +137,10 @@ public class Posting implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-        return this.docId.compareTo(((Posting)o).docId);
+        return this.getIntDocId() - ((Posting)o).getIntDocId();
+    }
+    
+    public int getIntDocId(){
+        return Integer.parseInt(this.docId);
     }
 }

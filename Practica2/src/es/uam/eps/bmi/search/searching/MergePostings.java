@@ -12,38 +12,36 @@ public class MergePostings implements Comparable{
     private ListIterator<Posting> listIterator;
     private Posting p;
     private int nTotal;
-    private String termino;
+    private int posTermino = 0;
 
     public MergePostings(ListIterator<Posting> listIterator, int nTotal){
         this.listIterator = listIterator;
         this.p = this.listIterator.next();
         this.nTotal = nTotal;
-        this.termino = null;
     }
-    public MergePostings(ListIterator<Posting> listIterator, String termino){
+    public MergePostings(ListIterator<Posting> listIterator){
         this.listIterator = listIterator;
         this.p = this.listIterator.next();
         this.nTotal = 0;//no relevante
-        this.termino = termino;
     }
 
+    public void setPosTermino(int posTermino){
+        this.posTermino = posTermino;
+    }
     @Override
     public int compareTo(Object o) {
         Posting post = ((MergePostings)o).getPosting();
         int comparado = this.p.compareTo(post);
         if(comparado == 0){
-            if(this.termino == null){
-                return 0;
-            }
-            return this.termino.compareTo(((MergePostings)o).getTermino());
+            return this.posTermino - ((MergePostings)o).posTermino;
         }
         return comparado;
     }
     public Posting getPosting(){
         return this.p;
     }
-    public String getTermino(){
-        return this.termino;
+    public int posTermino(){
+        return this.posTermino;
     }
 
     public void avanzaPuntero(){

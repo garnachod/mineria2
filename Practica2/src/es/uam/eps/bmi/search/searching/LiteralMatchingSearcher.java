@@ -32,24 +32,31 @@ public class LiteralMatchingSearcher implements Searcher{
         // Tokenizar consulta
         SimpleTokenizer st = new SimpleTokenizer();
         String[] tokens = st.split(query);
-        String[] terms = SimpleTokenizer.deleteRepeated(tokens);
-        for (int i = 0; i < terms.length; i++) {
-            terms[i] = SimpleNormalizer.normalize(terms[i]);
+        
+        for (int i = 0; i < tokens.length; i++) {
+            tokens[i] = SimpleNormalizer.normalize(tokens[i]);
         }
         // Sacar listas de postings de cada term
-        ArrayList<String> terminosFinal = SimpleNormalizer.removeNotAllowed(terms);
+        ArrayList<String> terminosFinal = SimpleNormalizer.removeNotAllowed(tokens);
         List<ScoredTextDocument> listaDocs = new ArrayList<>();
         PriorityQueue<MergePostings> postingsHeap = new PriorityQueue<>();
-        
+        System.out.println(terminosFinal);
         // Sacar listas de postings de cada term
+        int j = 0;
         for (String term : terminosFinal) {
             ArrayList<Posting> termPostings = new ArrayList(index.getTermPostings(term));
             if(!termPostings.isEmpty()){
                 ListIterator<Posting> listIterator = termPostings.listIterator();
-                MergePostings merge = new MergePostings(listIterator, term);
+                MergePostings merge = new MergePostings(listIterator);
+                merge.setPosTermino(j);
                 postingsHeap.add(merge);
+                
+            }else{
+                return new ArrayList<>();
             }
+            j++;
         }
+        
         while(!postingsHeap.isEmpty()){
             MergePostings primero = postingsHeap.poll();
             Posting auxPosting = primero.getPosting();
@@ -63,10 +70,7 @@ public class LiteralMatchingSearcher implements Searcher{
                     listMerges.add(otro);
                 }else{
                     flagMismoDoc = false;
-                    if(otro.hasNext()){
-                        otro.avanzaPuntero();
-                        postingsHeap.add(otro);
-                    }
+                    postingsHeap.add(otro);
                     break;
                 }
             }
@@ -76,33 +80,36 @@ public class LiteralMatchingSearcher implements Searcher{
                 //el heap ya no contiene todas las listas
                 break;
             }
-            //ahora hay que recorrer cada posting list a la vez
-            MergePostings primerMP = listMerges.get(0);
-            //iterador de las posiciones del primer posting
-            ListIterator<Long> listIteratorP = primerMP.getPosting().getTermPositions().listIterator();
-            //generamos un array de lista de posiciones
-            ArrayList<List<Long>> listaDeListasDePos = new ArrayList<>();
-            for(int i = 1; i < listMerges.size(); i++){
-                listaDeListasDePos.add(listMerges.get(i).getPosting().getTermPositions());
-            }
             
-            while(listIteratorP.hasNext()){
-                long next = listIteratorP.next();
-                int i = 1;
-                boolean flagBuenDoc = true;
-                for(List<Long> listaDePos : listaDeListasDePos){
-                    if(listaDePos.contains(next + i)){
-                        flagBuenDoc = true;
-                    }else{
-                        flagBuenDoc = false;
-                    }
-                    i++;
+            if(flagMismoDoc == true){
+                //ahora hay que recorrer cada posting list a la vez
+                MergePostings primerMP = listMerges.get(0);
+                //iterador de las posiciones del primer posting
+                ListIterator<Long> listIteratorP = primerMP.getPosting().getTermPositions().listIterator();
+                //generamos un array de lista de posiciones
+                ArrayList<List<Long>> listaDeListasDePos = new ArrayList<>();
+                for(int i = 1; i < listMerges.size(); i++){
+                    listaDeListasDePos.add(listMerges.get(i).getPosting().getTermPositions());
                 }
-                if(flagBuenDoc = true){
-                    String docid = primero.getDocID();
-                    ScoredTextDocument scored = new ScoredTextDocument(docid, 1.0);
-                    listaDocs.add(scored);
-                    break;
+
+                while(listIteratorP.hasNext()){
+                    long next = listIteratorP.next();
+                    int i = 1;
+                    boolean flagBuenDoc = true;
+                    for(List<Long> listaDePos : listaDeListasDePos){
+                        if(listaDePos.contains(next + i)){
+                            flagBuenDoc = true;
+                        }else{
+                            flagBuenDoc = false;
+                        }
+                        i++;
+                    }
+                    if(flagBuenDoc = true){
+                        String docid = primero.getDocID();
+                        ScoredTextDocument scored = new ScoredTextDocument(docid, 1.0);
+                        listaDocs.add(scored);
+                        break;
+                    }
                 }
             }
             //insertamos los docs en el heap de nuevo
