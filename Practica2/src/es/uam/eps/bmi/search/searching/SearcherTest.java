@@ -39,7 +39,7 @@ public class SearcherTest {
         HTMLSimpleParser parser = new HTMLSimpleParser();
         String settingsXML;
         
-        IndexBuilder.main(args);
+        //IndexBuilder.main(args);
         
         if (args.length < 1) {
             settingsXML = "./src/index-settings.xml";
