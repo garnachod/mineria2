@@ -9,8 +9,8 @@ import java.util.List;
 
 public class Posting implements Comparable{
     
-    private String docId;
-    private int termFrequency;
+    private String docId = null;
+    private int termFrequency = 0;
     private final List<Long> termPositions;
     
     /**

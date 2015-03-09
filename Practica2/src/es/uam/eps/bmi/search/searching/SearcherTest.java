@@ -71,6 +71,7 @@ public class SearcherTest {
             basic.load(basicPath);
            
             // Genera stopword index
+            
             System.out.println("Creando stopwords index");
             String stopwordsList = "./src/stop-words.txt";
             String stopwordPath = indexPath + "/stopword"; 
@@ -78,7 +79,7 @@ public class SearcherTest {
             stopwordFolder.mkdir();
             StopwordIndex stopword = new StopwordIndex(stopwordsList);
             stopword.build(collectionPath, stopwordPath, parser);
-            stopword.load(stopwordPath);
+            //stopword.load(stopwordPath);
             
             // Genera stem index
             System.out.println("Creando stem index");
@@ -86,8 +87,8 @@ public class SearcherTest {
             File stemFolder = new File(stemPath);
             stemFolder.mkdir();
             StemIndex stem = new StemIndex();
-            stem.build(collectionPath, basicPath, parser);
-            stem.load(basicPath);
+            stem.build(collectionPath, stemPath, parser);
+            //stem.load(basicPath);*/
             
             // Genera advanced index
             System.out.println("Creando advanced index");
@@ -96,7 +97,7 @@ public class SearcherTest {
             advancedFolder.mkdir();
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
             advanced.build(collectionPath, advancedPath, parser);
-            advanced.load(advancedPath);
+            //advanced.load(advancedPath);
             
             // Se crean los 4 buscadores
             BooleanSearcher booleanAND = new BooleanSearcher(BooleanSearcher.Mode.AND);
