@@ -52,7 +52,6 @@ public class IndexBuilder {
             basicFolder.mkdir();
             BasicIndex basic = new BasicIndex();
             basic.build(collectionPath, basicPath, parser);
-            basic.load(basicPath);
            
             // Genera stopword index
             System.out.println("Creando stopwords index");
@@ -62,7 +61,6 @@ public class IndexBuilder {
             stopwordFolder.mkdir();
             StopwordIndex stopword = new StopwordIndex(stopwordsList);
             stopword.build(collectionPath, stopwordPath, parser);
-            stopword.load(stopwordPath);
             
             // Genera stem index
             System.out.println("Creando stem index");
@@ -71,7 +69,6 @@ public class IndexBuilder {
             stemFolder.mkdir();
             StemIndex stem = new StemIndex();
             stem.build(collectionPath, stemPath, parser);
-            stem.load(stemPath);
             
             // Genera advanced index
             System.out.println("Creando advanced index");
@@ -80,8 +77,7 @@ public class IndexBuilder {
             advancedFolder.mkdir();
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
             advanced.build(collectionPath, advancedPath, parser);
-            advanced.load(advancedPath);
-             
+            
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {

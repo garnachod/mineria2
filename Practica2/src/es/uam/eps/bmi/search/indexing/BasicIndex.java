@@ -36,6 +36,7 @@ public class BasicIndex implements Index{
 
     private long maxIndexLong;
     protected long estimatedIndexSize;
+    protected final long biggestDocumentSize = 10000000;
     protected SimpleTokenizer tokenizer;
     protected HashMap<String, List<Posting>> partialIndex;
     protected PriorityQueue<String> sortedTerms;
@@ -229,7 +230,7 @@ public class BasicIndex implements Index{
     
     private boolean hasFreeSpace() {
         //System.out.println("El indice mide " + this.estimatedIndexSize + "/" + this.maxIndexLong);
-        return (this.estimatedIndexSize < this.maxIndexLong);
+        return ((this.estimatedIndexSize +  biggestDocumentSize ) < this.maxIndexLong);
     }
     
     /**

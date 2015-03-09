@@ -39,6 +39,8 @@ public class SearcherTest {
         HTMLSimpleParser parser = new HTMLSimpleParser();
         String settingsXML;
         
+        IndexBuilder.main(args);
+        
         if (args.length < 1) {
             settingsXML = "./src/index-settings.xml";
             System.err.println("Falta un argumento: Ruta del fichero XML de configuración.");
@@ -63,41 +65,31 @@ public class SearcherTest {
             String relevantDocsPath = collectionPath.replaceAll("docs.zip", "relevance.txt");
                     
             // Genera basic index
-            System.out.println("Creando basic index...");
+            System.out.println("Cargando basic index...");
             String basicPath = indexPath + "/basic"; 
-            File basicFolder = new File(basicPath);
-            basicFolder.mkdir();
+            //File basicFolder = new File(basicPath);
+            //basicFolder.mkdir();
             BasicIndex basic = new BasicIndex();
-            basic.build(collectionPath, basicPath, parser);
+            //basic.build(collectionPath, basicPath, parser);
             basic.load(basicPath);
            
             // Genera stopword index
-            
-            System.out.println("Creando stopwords index...");
+            System.out.println("Cargando stopwords index...");
             String stopwordsList = "./src/stop-words.txt";
             String stopwordPath = indexPath + "/stopword"; 
-            File stopwordFolder = new File(stopwordPath);
-            stopwordFolder.mkdir();
             StopwordIndex stopword = new StopwordIndex(stopwordsList);
-            stopword.build(collectionPath, stopwordPath, parser);
             stopword.load(stopwordPath);
             
             // Genera stem index
-            System.out.println("Creando stem index...");
+            System.out.println("Cargando stem index...");
             String stemPath = indexPath + "/stem"; 
-            File stemFolder = new File(stemPath);
-            stemFolder.mkdir();
             StemIndex stem = new StemIndex();
-            stem.build(collectionPath, stemPath, parser);
             stem.load(stemPath);
             
             // Genera advanced index
-            System.out.println("Creando advanced index");
+            System.out.println("Cargando advanced index");
             String advancedPath = indexPath + "/advanced"; 
-            File advancedFolder = new File(advancedPath);
-            advancedFolder.mkdir();
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
-            advanced.build(collectionPath, advancedPath, parser);
             advanced.load(advancedPath);
             
             // Se crean los 4 buscadores
