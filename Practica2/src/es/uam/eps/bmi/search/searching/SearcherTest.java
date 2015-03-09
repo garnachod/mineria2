@@ -63,35 +63,7 @@ public class SearcherTest {
             // Se presupone que el fichero de queries y docs relevantes está en la misma carpeta que la colección 
             String queriesPath = collectionPath.replaceAll("docs.zip", "queries.txt");
             String relevantDocsPath = collectionPath.replaceAll("docs.zip", "relevance.txt");
-                    
-            // Genera basic index
-            System.out.println("Cargando basic index...");
-            String basicPath = indexPath + "/basic"; 
-            //File basicFolder = new File(basicPath);
-            //basicFolder.mkdir();
-            BasicIndex basic = new BasicIndex();
-            //basic.build(collectionPath, basicPath, parser);
-            basic.load(basicPath);
-           
-            // Genera stopword index
-            System.out.println("Cargando stopwords index...");
-            String stopwordsList = "./src/stop-words.txt";
-            String stopwordPath = indexPath + "/stopword"; 
-            StopwordIndex stopword = new StopwordIndex(stopwordsList);
-            stopword.load(stopwordPath);
-            
-            // Genera stem index
-            System.out.println("Cargando stem index...");
-            String stemPath = indexPath + "/stem"; 
-            StemIndex stem = new StemIndex();
-            stem.load(stemPath);
-            
-            // Genera advanced index
-            System.out.println("Cargando advanced index");
-            String advancedPath = indexPath + "/advanced"; 
-            AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
-            advanced.load(advancedPath);
-            
+
             // Se crean los 4 buscadores
             BooleanSearcher booleanAND = new BooleanSearcher(BooleanSearcher.Mode.AND);
             BooleanSearcher booleanOR = new BooleanSearcher(BooleanSearcher.Mode.OR);
@@ -107,11 +79,26 @@ public class SearcherTest {
             // Para todas las combinaciones imprimir p@5 y p@10 promedio
             System.out.println("Combinación\tP@5\tP@10");
             
+            // Genera basic index
+            String basicPath = indexPath + "/basic"; 
+            BasicIndex basic = new BasicIndex();
+            basic.load(basicPath);
+        
             // Basic Index
             System.out.println("Basic + Boolean AND\t" + getPrecisionResults(basic, booleanAND, queries, relevantFilenames));
             System.out.println("Basic + Boolean OR\t" + getPrecisionResults(basic, booleanOR, queries, relevantFilenames));
             System.out.println("Basic + Literal\t" + getPrecisionResults(basic, literal, queries, relevantFilenames));
             System.out.println("Basic + TFIDF\t" + getPrecisionResults(basic, tfidf, queries, relevantFilenames));
+            
+            // Free index
+            basic = null;
+            System.gc();
+            
+            // Genera stopword index
+            String stopwordsList = "./src/stop-words.txt";
+            String stopwordPath = indexPath + "/stopword"; 
+            StopwordIndex stopword = new StopwordIndex(stopwordsList);
+            stopword.load(stopwordPath);
             
             // Stopword Index
             System.out.println("Stopword + Boolean AND\t" + getPrecisionResults(stopword, booleanAND, queries, relevantFilenames));
@@ -119,17 +106,39 @@ public class SearcherTest {
             System.out.println("Stopword + Literal\t" + getPrecisionResults(stopword, literal, queries, relevantFilenames));
             System.out.println("Stopword + TFIDF\t" + getPrecisionResults(stopword, tfidf, queries, relevantFilenames));
             
+            // Free index
+            stopword = null;
+            System.gc();
+            
+            // Genera stem index
+            String stemPath = indexPath + "/stem"; 
+            StemIndex stem = new StemIndex();
+            stem.load(stemPath);
+            
             // Stem Index
             System.out.println("Stem + Boolean AND\t" + getPrecisionResults(stem, booleanAND, queries, relevantFilenames));
             System.out.println("Stem + Boolean OR\t" + getPrecisionResults(stem, booleanOR, queries, relevantFilenames));
             System.out.println("Stem + Literal\t" + getPrecisionResults(stem, literal, queries, relevantFilenames));
             System.out.println("Stem + TFIDF\t" + getPrecisionResults(stem, tfidf, queries, relevantFilenames));
             
+            // Free index
+            stem = null;
+            System.gc();
+            
+            // Genera advanced index
+            String advancedPath = indexPath + "/advanced"; 
+            AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
+            advanced.load(advancedPath);
+            
             // Advanced Index
             System.out.println("Advanced + Boolean AND\t" + getPrecisionResults(advanced, booleanAND, queries, relevantFilenames));
             System.out.println("Advanced + Boolean OR\t" + getPrecisionResults(advanced, booleanOR, queries, relevantFilenames));
             System.out.println("Advanced + Literal\t" + getPrecisionResults(advanced, literal, queries, relevantFilenames));
             System.out.println("Advanced + TFIDF\t" + getPrecisionResults(advanced, tfidf, queries, relevantFilenames));
+            
+            // Free index
+            advanced = null;
+            System.gc();
             
             
         } catch (ParserConfigurationException ex) {

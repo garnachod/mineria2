@@ -54,7 +54,7 @@ public class IndexBuilder {
             basic.build(collectionPath, basicPath, parser);
            
             // Genera stopword index
-            System.out.println("Creando stopwords index");
+            /*System.out.println("Creando stopwords index");
             String stopwordsList = "./src/stop-words.txt";
             String stopwordPath = indexPath + "/stopword"; 
             File stopwordFolder = new File(stopwordPath);
@@ -77,7 +77,7 @@ public class IndexBuilder {
             advancedFolder.mkdir();
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
             advanced.build(collectionPath, advancedPath, parser);
-            
+            */
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {
