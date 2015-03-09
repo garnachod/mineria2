@@ -303,7 +303,7 @@ public class BasicIndex implements Index{
      */
     private void saveIndexTemporal(String nombreFichero) throws Exception {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
-        System.out.println("numero de terminos: " + this.sortedTerms.size());
+        System.out.println("Número de terminos en el índice parcial: " + this.sortedTerms.size());
         while (!this.sortedTerms.isEmpty()) {
             String term = this.sortedTerms.poll();
          
@@ -347,7 +347,7 @@ public class BasicIndex implements Index{
         }
         
         PriorityQueue<TemporalIndexDescriptor> sortedTID = new PriorityQueue<>();
-        System.out.println("creando cola de prioridad");
+        System.out.println("Creando heap...");
         int i = 1;
         for(String nombreITemp : this.ficherosTemporales){
             DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreITemp)));

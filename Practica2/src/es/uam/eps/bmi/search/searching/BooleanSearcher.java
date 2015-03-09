@@ -22,13 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
  /**
  *
@@ -70,15 +63,16 @@ public class BooleanSearcher implements Searcher {
         
         ArrayList<Posting> resultPostings;
         ArrayList<ScoredTextDocument> results = new ArrayList<>();
-        PriorityQueue<Posting> postingsHeap = new PriorityQueue<>();
         HashMap<String, ArrayList<Posting>> postingLists = new HashMap<>();
-        HashMap<String, Integer> positions = new HashMap<>();
         
         // Sacar listas de postings de cada term
         for (String term : SimpleNormalizer.removeNotAllowed(terms)) {
             List<Posting> termPostings = index.getTermPostings(term);
-            if (termPostings.isEmpty()) {
+            if (termPostings == null) {
                 return new ArrayList<>();
+            }
+            if (termPostings.isEmpty()) {
+                 return new ArrayList<>();
             }
             postingLists.put(term, (ArrayList<Posting>) termPostings);
         }
@@ -140,7 +134,6 @@ public class BooleanSearcher implements Searcher {
                 postingsHeap.add(primero);
             }
         }
-        
         return listaDocs;
     }
 

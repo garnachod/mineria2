@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
  /**
@@ -31,17 +32,18 @@ public class StemIndex extends BasicIndex {
         try {
             stemmer.setCurrent(term);
             stemmer.stem();
-            if(this.indexRAMBusqueda.containsKey(stemmer.getCurrent())){
+            String stemTerm = stemmer.getCurrent();
+            if(this.indexRAMBusqueda.containsKey(stemTerm)){
                 if(this.indexFile == null){
                     String nombreFichero = this.outputIndexPath + "\\indexed.data";
                     this.indexFile = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
                 }
-                List<Posting> listaRetorno = Posting.readListPostingsByPos(this.indexFile, this.indexRAMBusqueda.get(term));
+                List<Posting> listaRetorno = Posting.readListPostingsByPos(this.indexFile, this.indexRAMBusqueda.get(stemTerm));
                 this.indexFile.close();
                 this.indexFile = null;
                 return listaRetorno;
             }else{
-                return null;
+                return new ArrayList<Posting>();
             }
         } catch (IOException ex) {
             ex.printStackTrace();

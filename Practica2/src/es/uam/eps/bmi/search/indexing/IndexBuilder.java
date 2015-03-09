@@ -70,8 +70,8 @@ public class IndexBuilder {
             File stemFolder = new File(stemPath);
             stemFolder.mkdir();
             StemIndex stem = new StemIndex();
-            stem.build(collectionPath, basicPath, parser);
-            stem.load(basicPath);
+            stem.build(collectionPath, stemPath, parser);
+            stem.load(stemPath);
             
             // Genera advanced index
             System.out.println("Creando advanced index");

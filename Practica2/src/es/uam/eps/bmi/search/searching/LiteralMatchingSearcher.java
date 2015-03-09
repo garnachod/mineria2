@@ -41,7 +41,7 @@ public class LiteralMatchingSearcher implements Searcher{
         ArrayList<String> terminosFinal = SimpleNormalizer.removeNotAllowed(tokens);
         List<ScoredTextDocument> listaDocs = new ArrayList<>();
         PriorityQueue<MergePostings> postingsHeap = new PriorityQueue<>();
-        System.out.println(terminosFinal);
+        
         // Sacar listas de postings de cada term
         int j = 0;
         for (String term : terminosFinal) {

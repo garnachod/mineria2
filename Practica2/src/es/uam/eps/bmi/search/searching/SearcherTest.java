@@ -5,6 +5,7 @@ import es.uam.eps.bmi.search.RelevanceUtils;
 import es.uam.eps.bmi.search.ScoredTextDocument;
 import es.uam.eps.bmi.search.indexing.AdvancedIndex;
 import es.uam.eps.bmi.search.indexing.BasicIndex;
+import es.uam.eps.bmi.search.indexing.Index;
 import es.uam.eps.bmi.search.indexing.IndexBuilder;
 import es.uam.eps.bmi.search.indexing.StemIndex;
 import es.uam.eps.bmi.search.indexing.StopwordIndex;
@@ -62,7 +63,7 @@ public class SearcherTest {
             String relevantDocsPath = collectionPath.replaceAll("docs.zip", "relevance.txt");
                     
             // Genera basic index
-            System.out.println("Creando basic index");
+            System.out.println("Creando basic index...");
             String basicPath = indexPath + "/basic"; 
             File basicFolder = new File(basicPath);
             basicFolder.mkdir();
@@ -72,23 +73,23 @@ public class SearcherTest {
            
             // Genera stopword index
             
-            System.out.println("Creando stopwords index");
+            System.out.println("Creando stopwords index...");
             String stopwordsList = "./src/stop-words.txt";
             String stopwordPath = indexPath + "/stopword"; 
             File stopwordFolder = new File(stopwordPath);
             stopwordFolder.mkdir();
             StopwordIndex stopword = new StopwordIndex(stopwordsList);
             stopword.build(collectionPath, stopwordPath, parser);
-            //stopword.load(stopwordPath);
+            stopword.load(stopwordPath);
             
             // Genera stem index
-            System.out.println("Creando stem index");
+            System.out.println("Creando stem index...");
             String stemPath = indexPath + "/stem"; 
             File stemFolder = new File(stemPath);
             stemFolder.mkdir();
             StemIndex stem = new StemIndex();
             stem.build(collectionPath, stemPath, parser);
-            //stem.load(basicPath);*/
+            stem.load(stemPath);
             
             // Genera advanced index
             System.out.println("Creando advanced index");
@@ -97,7 +98,7 @@ public class SearcherTest {
             advancedFolder.mkdir();
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
             advanced.build(collectionPath, advancedPath, parser);
-            //advanced.load(advancedPath);
+            advanced.load(advancedPath);
             
             // Se crean los 4 buscadores
             BooleanSearcher booleanAND = new BooleanSearcher(BooleanSearcher.Mode.AND);
@@ -111,27 +112,34 @@ public class SearcherTest {
             // Almacenar documentos relevantes para cada consulta
             ArrayList<ArrayList<String>> relevantFilenames = RelevanceUtils.parseRelevantFilenames(relevantDocsPath);
             
-            // TODO: Para todas las combinaciones:
+            // Para todas las combinaciones imprimir p@5 y p@10 promedio
+            System.out.println("Combinación\tP@5\tP@10");
             
-            // Calcular precisiones para cada consulta en Basic index + Boolean AND 
-            booleanAND.build(basic);
-            RelevanceUtils.setIndex(basic);
+            // Basic Index
+            System.out.println("Basic + Boolean AND\t" + getPrecisionResults(basic, booleanAND, queries, relevantFilenames));
+            System.out.println("Basic + Boolean OR\t" + getPrecisionResults(basic, booleanOR, queries, relevantFilenames));
+            System.out.println("Basic + Literal\t" + getPrecisionResults(basic, literal, queries, relevantFilenames));
+            System.out.println("Basic + TFIDF\t" + getPrecisionResults(basic, tfidf, queries, relevantFilenames));
             
-            ArrayList<Double> p5s = new ArrayList<>();
-            ArrayList<Double> p10s = new ArrayList<>();
+            // Stopword Index
+            System.out.println("Stopword + Boolean AND\t" + getPrecisionResults(stopword, booleanAND, queries, relevantFilenames));
+            System.out.println("Stopword + Boolean OR\t" + getPrecisionResults(stopword, booleanOR, queries, relevantFilenames));
+            System.out.println("Stopword + Literal\t" + getPrecisionResults(stopword, literal, queries, relevantFilenames));
+            System.out.println("Stopword + TFIDF\t" + getPrecisionResults(stopword, tfidf, queries, relevantFilenames));
             
-            for (int i = 0; i < queries.size(); i++) {
-                List<ScoredTextDocument> results = booleanAND.search(queries.get(i));
-                p5s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(i), 5));
-                p10s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(i), 10));
-            }
+            // Stem Index
+            System.out.println("Stem + Boolean AND\t" + getPrecisionResults(stem, booleanAND, queries, relevantFilenames));
+            System.out.println("Stem + Boolean OR\t" + getPrecisionResults(stem, booleanOR, queries, relevantFilenames));
+            System.out.println("Stem + Literal\t" + getPrecisionResults(stem, literal, queries, relevantFilenames));
+            System.out.println("Stem + TFIDF\t" + getPrecisionResults(stem, tfidf, queries, relevantFilenames));
             
-            double averageP5 = RelevanceUtils.calculateAverage(p5s);
-            double averageP10 = RelevanceUtils.calculateAverage(p10s);
+            // Advanced Index
+            System.out.println("Advanced + Boolean AND\t" + getPrecisionResults(advanced, booleanAND, queries, relevantFilenames));
+            System.out.println("Advanced + Boolean OR\t" + getPrecisionResults(advanced, booleanOR, queries, relevantFilenames));
+            System.out.println("Advanced + Literal\t" + getPrecisionResults(advanced, literal, queries, relevantFilenames));
+            System.out.println("Advanced + TFIDF\t" + getPrecisionResults(advanced, tfidf, queries, relevantFilenames));
             
-            System.out.println("Basic Index\t" + averageP5 + "\t" + averageP10);
             
-             
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {
@@ -139,5 +147,25 @@ public class SearcherTest {
         } catch (IOException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private static String getPrecisionResults (Index i, Searcher s, ArrayList<String> queries, ArrayList<ArrayList<String>> relevantFilenames) {
+            
+            // Calcular precisiones para cada consulta en Basic index + Boolean AND 
+            s.build(i);
+            RelevanceUtils.setIndex(i);
+            
+            ArrayList<Double> p5s = new ArrayList<>();
+            ArrayList<Double> p10s = new ArrayList<>();
+            
+            for (int j = 0; j < queries.size(); j++) {
+                List<ScoredTextDocument> results = s.search(queries.get(j));
+                p5s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(j), 5));
+                p10s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(j), 10));
+            }
+            
+            Double averageP5 = Math.round(100.0 * RelevanceUtils.calculateAverage(p5s)) / 100.0;
+            Double averageP10 = Math.round(100.0 * RelevanceUtils.calculateAverage(p10s)) / 100.0;
+            return averageP5 + "\t" + averageP10;
     }
 }
