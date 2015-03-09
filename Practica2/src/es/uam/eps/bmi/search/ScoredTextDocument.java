@@ -29,7 +29,7 @@ public class ScoredTextDocument implements Comparable {
     @Override
     public int compareTo(Object o) {
         if (o instanceof ScoredTextDocument) {
-            return this.docId.compareTo(((ScoredTextDocument)o).getDocId());
+            return (int) ((this.score * 100.0) - ((((ScoredTextDocument)o).score)*100.0));
         }
         return Integer.MAX_VALUE;
     }

@@ -7,6 +7,7 @@ import es.uam.eps.bmi.search.indexing.Posting;
 import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.SimpleTokenizer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
@@ -92,6 +93,9 @@ public class LiteralMatchingSearcher implements Searcher{
                     listaDeListasDePos.add(listMerges.get(i).getPosting().getTermPositions());
                 }
 
+                double tf = 0;
+                int nRepeticionesBueno = 0;
+                //idf no tiene sentido porque siempre vamos a multiplicar por el mismo valor
                 while(listIteratorP.hasNext()){
                     long next = listIteratorP.next();
                     int i = 1;
@@ -105,11 +109,15 @@ public class LiteralMatchingSearcher implements Searcher{
                         i++;
                     }
                     if(flagBuenDoc = true){
-                        String docid = primero.getDocID();
-                        ScoredTextDocument scored = new ScoredTextDocument(docid, 1.0);
-                        listaDocs.add(scored);
-                        break;
+                        nRepeticionesBueno++;
                     }
+                }
+                if(nRepeticionesBueno > 0){
+                    String docid = primero.getDocID();
+                    tf = 1 + this.logBase2(nRepeticionesBueno);
+                    double tf_idf = tf/this.index.getBytesDocument(docid);
+                    ScoredTextDocument scored = new ScoredTextDocument(docid, tf_idf);
+                    listaDocs.add(scored);
                 }
             }
             //insertamos los docs en el heap de nuevo
@@ -122,10 +130,14 @@ public class LiteralMatchingSearcher implements Searcher{
             }
             
         }
+        Collections.sort(listaDocs);
         return listaDocs;
         
     }
-    
+    private double logBase2(double x)
+    {
+        return Math.log(x) / Math.log(2);
+    }
     /**
     * Solicita al usuario una consulta, y muestra por pantalla
     * los top 5 resultados de la consulta imprimiendo el título y parte del

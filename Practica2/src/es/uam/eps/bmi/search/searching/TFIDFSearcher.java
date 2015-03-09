@@ -7,6 +7,7 @@ import es.uam.eps.bmi.search.indexing.Posting;
 import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.SimpleTokenizer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
@@ -83,7 +84,7 @@ public class TFIDFSearcher implements Searcher {
                 postingsHeap.add(primero);
             }
         }
-        
+        Collections.sort(listaDocs);
         return listaDocs;
     }
     private double logBase2(double x)
