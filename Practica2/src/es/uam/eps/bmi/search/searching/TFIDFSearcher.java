@@ -61,11 +61,10 @@ public class TFIDFSearcher implements Searcher {
             double idf = this.logBase2(totalDocs/primero.getNTotalDocs());
             double tf_idfAux = 0;
             tf_idfAux += tf*idf;
+           
             while(!postingsHeap.isEmpty()){
                 MergePostings otro = postingsHeap.poll();
-                //System.out.println("UNO:" + primero.getDocID() + " DOS:"+ otro.getDocID());
                 if(primero.equals(otro)){
-                    //System.out.println("equals");
                     auxPosting = otro.getPosting();
                     tf = 1.0 + this.logBase2(auxPosting.getTermFrequency());
                     idf = this.logBase2(totalDocs/otro.getNTotalDocs());
@@ -77,7 +76,7 @@ public class TFIDFSearcher implements Searcher {
                 }
             }
             String docid = primero.getDocID();
-            double nomalizedtf_idf = tf_idfAux/(this.index.getBytesDocument(docid)/1024.0);
+            double nomalizedtf_idf = tf_idfAux/(1.0 + this.logBase2(this.index.getBytesDocument(docid)/1024.0));
             ScoredTextDocument scored = new ScoredTextDocument(docid, nomalizedtf_idf);
             listaDocs.add(scored);
             for(MergePostings mp: listaAuxiliarInsertar){

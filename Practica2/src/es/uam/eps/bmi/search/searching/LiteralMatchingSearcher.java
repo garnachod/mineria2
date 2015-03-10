@@ -19,11 +19,6 @@ import java.util.PriorityQueue;
 public class LiteralMatchingSearcher implements Searcher{
     Index index;
     
-    
-    public LiteralMatchingSearcher(){
-        
-    }
-    
     @Override
     public void build(Index index) {
         this.index = index;
@@ -58,7 +53,7 @@ public class LiteralMatchingSearcher implements Searcher{
             }
             j++;
         }
-        
+        double totalDocs = this.index.getNDocsIndex();
         while(!postingsHeap.isEmpty()){
             MergePostings primero = postingsHeap.poll();
             Posting auxPosting = primero.getPosting();
@@ -94,30 +89,35 @@ public class LiteralMatchingSearcher implements Searcher{
                     listaDeListasDePos.add(listMerges.get(i).getPosting().getTermPositions());
                 }
 
-                double tf = 0;
+                
                 int nRepeticionesBueno = 0;
                 //idf no tiene sentido porque siempre vamos a multiplicar por el mismo valor
                 while(listIteratorP.hasNext()){
                     long next = listIteratorP.next();
                     int i = 1;
                     boolean flagBuenDoc = true;
+
                     for(List<Long> listaDePos : listaDeListasDePos){
+                        
                         if(listaDePos.contains(next + i)){
                             flagBuenDoc = true;
+                            
                         }else{
                             flagBuenDoc = false;
                             break;
                         }
                         i++;
                     }
-                    if(flagBuenDoc = true){
+                    if(flagBuenDoc == true){
                         nRepeticionesBueno++;
                     }
                 }
+                double tf = 0;
                 if(nRepeticionesBueno > 0){
                     String docid = primero.getDocID();
                     tf = 1.0 + this.logBase2(nRepeticionesBueno);
-                    double tf_idf = tf/(this.index.getBytesDocument(docid)/1024.0);
+                    
+                    double tf_idf = tf/(1.0 + this.logBase2(this.index.getBytesDocument(docid)/1024.0));
                     ScoredTextDocument scored = new ScoredTextDocument(docid, tf_idf);
                     listaDocs.add(scored);
                 }

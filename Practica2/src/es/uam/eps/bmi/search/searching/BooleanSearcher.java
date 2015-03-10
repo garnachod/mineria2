@@ -183,7 +183,7 @@ public class BooleanSearcher implements Searcher {
     * @param args Ruta del fichero de config
     */
     public static void main (String[] args) {
-        InteractiveSearcher.main(args, new BooleanSearcher(Mode.AND));
+        InteractiveSearcher.main(args, new BooleanSearcher(Mode.OR));
     }
 }
 
