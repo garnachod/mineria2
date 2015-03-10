@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
+ * Main para generar todo tipo de índices
  * @author Diego Castaño y Daniel Garnacho
  */
 public class IndexBuilder {

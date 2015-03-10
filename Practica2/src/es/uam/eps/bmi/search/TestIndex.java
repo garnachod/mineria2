@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
+ * Main para probar la construcción de índices con Lucene
  * @author Diego Castaño y Daniel Garnacho
  */
 public class TestIndex {

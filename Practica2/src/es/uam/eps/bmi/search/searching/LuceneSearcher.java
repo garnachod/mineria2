@@ -21,6 +21,7 @@ import org.apache.lucene.util.Version;
 
 
 /**
+ * Buscador wrapper de Lucene
  * @author Diego Castaño y Daniel Garnacho
  */
 public class LuceneSearcher implements Searcher {

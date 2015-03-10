@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- *
+ * Índice que filtra stopwords
  * @author Diego Castaño y Daniel Garnacho
  */
 public class StopwordIndex extends BasicIndex {

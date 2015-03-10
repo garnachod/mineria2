@@ -13,6 +13,7 @@ import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 /**
+ * Buscador literal
  * @author Diego Castaño y Daniel Garnacho
  */
 public class LiteralMatchingSearcher implements Searcher{

@@ -7,6 +7,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bean para representar las apariciones de un término en un documento
+ * @author Diego Castaño y Daniel Garnacho
+ */
 public class Posting implements Comparable{
     
     private String docId = null;

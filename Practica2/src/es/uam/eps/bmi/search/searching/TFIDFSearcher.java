@@ -13,6 +13,7 @@ import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 /**
+ * Buscador vectorial
  * @author Diego Castaño y Daniel Garnacho
  */
 public class TFIDFSearcher implements Searcher {

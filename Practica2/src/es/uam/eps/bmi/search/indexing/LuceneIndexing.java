@@ -33,6 +33,7 @@ import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 
 /**
+ * Índice wrapper de Lucene
  * @author Diego Castaño y Daniel Garnacho
  */
 public class LuceneIndexing implements Index {

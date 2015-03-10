@@ -6,7 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- *
+ * Bean para almacenar un índice parcial
  * @author Diego Castaño y Daniel Garnacho
  */
 public class TemporalIndexDescriptor implements Comparable{

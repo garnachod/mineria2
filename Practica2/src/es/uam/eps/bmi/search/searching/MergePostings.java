@@ -7,7 +7,6 @@ import java.util.ListIterator;
 /**
  * MergePostings encarga de unificar los postings y la lista de estos
  * para poder usar Heaps de una manera eficiente.
- * 
  * @author Diego Castaño y Daniel Garnacho
  */
 

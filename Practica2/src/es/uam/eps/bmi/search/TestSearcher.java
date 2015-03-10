@@ -12,6 +12,7 @@ import java.util.List;
 
 
 /**
+ * Main para probar la búsqueda con Lucene
  * @author Diego Castaño y Daniel Garnacho
  */
 public class TestSearcher {

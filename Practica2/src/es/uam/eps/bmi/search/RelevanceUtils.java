@@ -10,6 +10,7 @@ import java.util.List;
 
 
 /**
+ * Métodos útiles para hacer mediciones de precisión
  * @author Diego Castaño y Daniel Garnacho
  */
 public class RelevanceUtils {

@@ -2,6 +2,7 @@
 package es.uam.eps.bmi.search;
 
 /**
+ * Bean para almacenar un documento puntuado
  * @author Diego Castaño y Daniel Garnacho
  */
 public class ScoredTextDocument implements Comparable {

@@ -29,7 +29,7 @@ import java.util.zip.ZipFile;
 
     
  /**
- *
+ * Índice básico
  * @author Diego Castaño y Daniel Garnacho
  */
 public class BasicIndex implements Index{

@@ -6,6 +6,7 @@ import es.uam.eps.bmi.search.parsing.TextParser;
 import java.util.List;
 
 /**
+ * Interfaz común a todo índice
  * @author Diego Castaño y Daniel Garnacho
  */
 public interface Index {

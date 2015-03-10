@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
  /**
- *
+ * Índice que aplica stemming (en inglés)
  * @author Diego Castaño y Daniel Garnacho
  */
 public class StemIndex extends BasicIndex {

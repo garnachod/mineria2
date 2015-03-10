@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
+ * Contiene main genérico para probar todos los buscadores
  * @author Diego Castaño y Daniel Garnacho
  */
 public class InteractiveSearcher {

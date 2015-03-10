@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 
 /**
+ * Índice que combina StemIndex y StopwordIndex
  * @author Diego Castaño y Daniel Garnacho
  */
 public class AdvancedIndex extends StemIndex{

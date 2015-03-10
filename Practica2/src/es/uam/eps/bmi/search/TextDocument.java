@@ -4,6 +4,7 @@ package es.uam.eps.bmi.search;
 import java.util.Objects;
 
 /**
+ * Bean para representar un documento a indexar
  * @author Diego Castaño y Daniel Garnacho
  */
 public class TextDocument {

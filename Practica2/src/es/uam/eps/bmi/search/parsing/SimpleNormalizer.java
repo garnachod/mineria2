@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 
 /**
+ * Métodos para normalizar texto a indexar/buscar
  * @author Diego Castaño y Daniel Garnacho
  */
 public class SimpleNormalizer {

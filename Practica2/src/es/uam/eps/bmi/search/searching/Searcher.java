@@ -6,6 +6,7 @@ import es.uam.eps.bmi.search.indexing.Index;
 import java.util.List;
 
 /**
+ * Interfaz común a todos los buscadores
  * @author Diego Castaño y Daniel Garnacho
  */
 public interface Searcher {

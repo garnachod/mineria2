@@ -4,6 +4,7 @@ package es.uam.eps.bmi.search;
 import java.util.Comparator;
 
 /**
+ * Bean para almacenar la frecuencia de una palabra
  * @author Diego Castaño y Daniel Garnacho
  */
 public class FrecObject implements Comparator<FrecObject>{
