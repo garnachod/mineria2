@@ -76,14 +76,15 @@ public class SearcherTest {
             // Almacenar documentos relevantes para cada consulta
             ArrayList<ArrayList<String>> relevantFilenames = RelevanceUtils.parseRelevantFilenames(relevantDocsPath);
             
-            // Para todas las combinaciones imprimir p@5 y p@10 promedio
-            System.out.println("Combinación\tP@5\tP@10");
+            
             
             // Genera basic index
             String basicPath = indexPath + "/basic"; 
             BasicIndex basic = new BasicIndex();
             basic.load(basicPath);
-        
+            System.out.println("Indice cargado");
+            // Para todas las combinaciones imprimir p@5 y p@10 promedio
+            System.out.println("Combinación\tP@5\tP@10");
             // Basic Index
             System.out.println("Basic + Boolean AND\t" + getPrecisionResults(basic, booleanAND, queries, relevantFilenames));
             System.out.println("Basic + Boolean OR\t" + getPrecisionResults(basic, booleanOR, queries, relevantFilenames));

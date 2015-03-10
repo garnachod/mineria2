@@ -90,12 +90,14 @@ public class RelevanceUtils {
                 String filename = index.getDocument(results.get(i).getDocId()).getName();
                 String name = filename.split("\\.")[0];
                 for (String relevantFilename : relevantFilenames){
+                    //System.out.println(" dado " + name + " esperado: " + relevantFilename);
                     if (relevantFilename.equals(name)) {
                         precision += 1.0;
                         break;
                     }
                 }
             }
+            //System.out.println(precision);
             precision = precision / (double)n;
         } catch (Exception e) {
         }

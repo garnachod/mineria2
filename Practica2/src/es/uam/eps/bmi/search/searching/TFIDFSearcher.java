@@ -48,40 +48,42 @@ public class TFIDFSearcher implements Searcher {
             }
         }
         
-        long totalDocs = this.index.getNDocsIndex();
+        double totalDocs = this.index.getNDocsIndex();
         
         //mientras que no se hayan terminado todas las listas
         while(!postingsHeap.isEmpty()){
+            ArrayList<MergePostings> listaAuxiliarInsertar = new ArrayList<>();
             MergePostings primero = postingsHeap.poll();
+            listaAuxiliarInsertar.add(primero);
             Posting auxPosting = primero.getPosting();
-            double tf = 1 + this.logBase2(auxPosting.getTermFrequency());
+            double tf = 1.0 + this.logBase2(auxPosting.getTermFrequency());
             double idf = this.logBase2(totalDocs/primero.getNTotalDocs());
             double tf_idfAux = 0;
             tf_idfAux += tf*idf;
             while(!postingsHeap.isEmpty()){
                 MergePostings otro = postingsHeap.poll();
+                //System.out.println("UNO:" + primero.getDocID() + " DOS:"+ otro.getDocID());
                 if(primero.equals(otro)){
+                    //System.out.println("equals");
                     auxPosting = otro.getPosting();
-                    tf = 1 + this.logBase2(auxPosting.getTermFrequency());
-                    idf = this.logBase2(totalDocs/primero.getNTotalDocs());
+                    tf = 1.0 + this.logBase2(auxPosting.getTermFrequency());
+                    idf = this.logBase2(totalDocs/otro.getNTotalDocs());
                     tf_idfAux += tf*idf;
-                    
-                    if(otro.hasNext()){
-                        otro.avanzaPuntero();
-                        postingsHeap.add(otro);
-                    }
+                    listaAuxiliarInsertar.add(otro);
                 }else{
                     postingsHeap.add(otro);
                     break;
                 }
             }
             String docid = primero.getDocID();
-            double nomalizedtf_idf = tf_idfAux/this.index.getBytesDocument(docid);
+            double nomalizedtf_idf = tf_idfAux/(this.index.getBytesDocument(docid)/1024.0);
             ScoredTextDocument scored = new ScoredTextDocument(docid, nomalizedtf_idf);
             listaDocs.add(scored);
-            if(primero.hasNext()){
-                primero.avanzaPuntero();
-                postingsHeap.add(primero);
+            for(MergePostings mp: listaAuxiliarInsertar){
+                if(mp.hasNext()){
+                    mp.avanzaPuntero();
+                    postingsHeap.add(mp);
+                }
             }
         }
         Collections.sort(listaDocs);

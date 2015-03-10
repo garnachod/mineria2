@@ -33,18 +33,18 @@ public class ScoredTextDocument implements Comparable {
             return Integer.MAX_VALUE;
         }
         
-        int scoreA = (int)this.score * 1000;
-        int scoreB = (int)((ScoredTextDocument)o).score * 1000;
+        int scoreA = (int)(this.score * 1000.0);
+        int scoreB = (int)(((ScoredTextDocument)o).score * 1000.0);
         
         if (scoreA == scoreB) {
             return 0;
         }
-        
+        //queremos que se ordenen de mayor a menor
         if (scoreA > scoreB) {
-            return 1;
+            return -1;
         }
         
-        return -1;
+        return 1;
     }
     
 }

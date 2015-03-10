@@ -114,8 +114,8 @@ public class LiteralMatchingSearcher implements Searcher{
                 }
                 if(nRepeticionesBueno > 0){
                     String docid = primero.getDocID();
-                    tf = 1 + this.logBase2(nRepeticionesBueno);
-                    double tf_idf = tf/this.index.getBytesDocument(docid);
+                    tf = 1.0 + this.logBase2(nRepeticionesBueno);
+                    double tf_idf = tf/(this.index.getBytesDocument(docid)/1024.0);
                     ScoredTextDocument scored = new ScoredTextDocument(docid, tf_idf);
                     listaDocs.add(scored);
                 }
