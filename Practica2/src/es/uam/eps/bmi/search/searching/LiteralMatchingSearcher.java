@@ -105,6 +105,7 @@ public class LiteralMatchingSearcher implements Searcher{
                             flagBuenDoc = true;
                         }else{
                             flagBuenDoc = false;
+                            break;
                         }
                         i++;
                     }
