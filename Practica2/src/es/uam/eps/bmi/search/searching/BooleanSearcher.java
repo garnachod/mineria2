@@ -7,8 +7,6 @@ import es.uam.eps.bmi.search.indexing.Posting;
 import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.SimpleTokenizer;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
@@ -45,48 +43,12 @@ public class BooleanSearcher implements Searcher {
     }
     
     /**
-     * Realiza una búsqueda en modo AND
-     * @param terms Términos a buscar
-     * @return Lista de documentos que contienen todos los términos válidos
-     */
-    private List<ScoredTextDocument> searchAND(String[] terms) {
-        
-        ArrayList<Posting> resultPostings;
-        ArrayList<ScoredTextDocument> results = new ArrayList<>();
-        HashMap<String, ArrayList<Posting>> postingLists = new HashMap<>();
-        
-        // Sacar listas de postings de cada term
-        for (String term : SimpleNormalizer.removeNotAllowed(terms)) {
-            List<Posting> termPostings = index.getTermPostings(term);
-            if (termPostings == null) {
-                return new ArrayList<>();
-            }
-            if (termPostings.isEmpty()) {
-                 return new ArrayList<>();
-            }
-            postingLists.put(term, (ArrayList<Posting>) termPostings);
-        }
-        
-        // Intersectar las listas 2 a 2 (match)
-        HashSet<Posting> match = new HashSet<>(postingLists.get(postingLists.keySet().iterator().next()));
-        for (String term: postingLists.keySet()) {
-            if (!match.isEmpty()) {
-                match.retainAll(postingLists.get(term));
-            }
-        }
-        resultPostings = new ArrayList<>(match);
-        for (Posting p : resultPostings) {
-            results.add(new ScoredTextDocument(p.getDocId(), 1));
-        }
-        return results;
-    }
-    /**
      * Realiza una búsqueda en modo AND, optimizando el uso de procesador y memoria
      * la busqueda total 100k pasa de 20 minutos a 2
      * @param terms Términos a buscar
      * @return Lista de documentos que contienen todos los términos válidos
      */
-    private List<ScoredTextDocument> optimicedSearchAND(String[] terms) {
+    private List<ScoredTextDocument> searchAND(String[] terms) {
         // Sacar listas de postings de cada term
         ArrayList<String> terminosFinal = SimpleNormalizer.removeNotAllowed(terms);
         List<ScoredTextDocument> listaDocs = new ArrayList<>();
@@ -207,7 +169,7 @@ public class BooleanSearcher implements Searcher {
         
         if (currentMode.equals(Mode.AND)) {
             //return this.searchAND(terms);
-            return this.optimicedSearchAND(terms);
+            return this.searchAND(terms);
         } else {
             return this.searchOR(terms);
         }   
