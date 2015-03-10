@@ -5,9 +5,12 @@ import es.uam.eps.bmi.search.indexing.Posting;
 import java.util.ListIterator;
 
 /**
- *
- * @author dani
+ * MergePostings encarga de unificar los postings y la lista de estos
+ * para poder usar Heaps de una manera eficiente.
+ * 
+ * @author Diego Castaño y Daniel Garnacho
  */
+
 public class MergePostings implements Comparable{
     private ListIterator<Posting> listIterator;
     private Posting p;
@@ -24,7 +27,10 @@ public class MergePostings implements Comparable{
         this.p = this.listIterator.next();
         this.nTotal = 0;//no relevante
     }
-
+    /**
+     * Inicializa la posicion del termino en la consulta, para la busqueda literal
+     * @param posTermino 
+     */
     public void setPosTermino(int posTermino){
         this.posTermino = posTermino;
     }
@@ -37,17 +43,27 @@ public class MergePostings implements Comparable{
         }
         return comparado;
     }
+    /**
+     * Retorna el posting recogido de la lista de postings interna
+     * @return 
+     */
     public Posting getPosting(){
         return this.p;
     }
-    public int posTermino(){
+    public int getPosTermino(){
         return this.posTermino;
     }
-
+    /**
+     * Avanza en la lista de elementos, guarda el estado en un posting temporal
+     * que se va a poder consultar
+     */
     public void avanzaPuntero(){
         this.p = this.listIterator.next();
     }
-
+    /**
+     * Comprueba si quedan elementos en la lista de postings
+     * @return true si quedan elementos, false en caso contrario
+     */
     public boolean hasNext(){
         return this.listIterator.hasNext();
     }
@@ -63,7 +79,11 @@ public class MergePostings implements Comparable{
     public String getDocID(){
         return this.p.getDocId();
     }
-    
+    /**
+     * retorna el tamaño total de la lista de postings, por sencillez se pasa 
+     * por parametros en el creador
+     * @return tamaño total de la lista de postings
+     */
     public int getNTotalDocs(){
         return this.nTotal;
     }
