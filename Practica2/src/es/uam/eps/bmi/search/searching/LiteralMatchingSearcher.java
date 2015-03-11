@@ -136,6 +136,12 @@ public class LiteralMatchingSearcher implements Searcher{
         return listaDocs;
         
     }
+    
+    /**
+     * Logaritmo en base 2
+     * @param x
+     * @return 
+     */
     private double logBase2(double x)
     {
         return Math.log(x) / Math.log(2);
