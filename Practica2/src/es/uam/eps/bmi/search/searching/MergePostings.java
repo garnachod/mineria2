@@ -44,7 +44,7 @@ public class MergePostings implements Comparable{
     }
     /**
      * Retorna el posting recogido de la lista de postings interna
-     * @return 
+     * @return Posting recogido
      */
     public Posting getPosting(){
         return this.p;

@@ -83,7 +83,7 @@ public class TemporalIndexDescriptor implements Comparable{
     
     /**
      * Comprueba si queda espacio disponible en este índice parcial
-     * @return 
+     * @return true si queda espacio, false si no
      */
     public boolean isAvailable(){
         try{
