@@ -71,14 +71,13 @@ public class PageRank {
                     // Guardar nº de outlinks
                     this.outlinkCount.put(tokens[0], Integer.parseInt(tokens[1]));
 
-                    // Guardar enlaces salientes si los hay                    
-                    if (tokens.length > 2) {
-                        ArrayList<String> links = new ArrayList<>();
-                        for (int i = 2; i < tokens.length; i++) {
-                            links.add(tokens[i]);
-                        }    
-                        this.outlinkList.put(tokens[0], links);
-                    }
+                    // Guardar enlaces salientes si los hay   
+                    ArrayList<String> links = new ArrayList<>();
+                    for (int i = 2; i < tokens.length; i++) {
+                        links.add(tokens[i]);
+                    }    
+                    this.outlinkList.put(tokens[0], links);
+                    
                 }
            }
            
@@ -113,7 +112,6 @@ public class PageRank {
                     inlinkList.put(outlink, links);
                 }
             }
-            System.out.println(inlinkList);
     }
 
     
@@ -129,18 +127,25 @@ public class PageRank {
         
         System.out.println(this.scores);
             
+            System.out.println("PageRanks: " + this.scores);
+            double sum = 0;
+                for (String docId : scores.keySet()) {
+                sum += scores.get(docId);
+            }
+            System.out.println("La suma de los PageRank es " + sum);
+            
         // Condición de convergencia (50 veces)
         for (int i = 0; i < maxIterations; i++) {
             
             // Actualizar todos los pageranks
             updateScores();
             
-            System.out.println(this.scores);
-            double sum = 0;
+            System.out.println("PageRanks: " + this.scores);
+            sum = 0;
                 for (String docId : scores.keySet()) {
                 sum += scores.get(docId);
             }
-            System.out.println(sum);
+            System.out.println("La suma de los PageRank es " + sum);
         }
     }
     
@@ -148,11 +153,11 @@ public class PageRank {
      * Inicializa tabla de scores a 1/N
      */
     private void initScores() {
-        for (String docId : outlinkList.keySet()) {
-            scores.put(docId, 1/(double)this.outlinkList.size());
+        for (String docId : outlinkCount.keySet()) {
+            scores.put(docId, 1/(double)this.outlinkCount.size());
             if (this.outlinkList.get(docId) != null) {
                 for (String link : this.outlinkList.get(docId)) {
-                    scores.put(link, 1/(double)this.outlinkList.size());
+                    scores.put(link, 1/(double)this.outlinkCount.size());
                 }   
             }
         }
@@ -208,21 +213,15 @@ public class PageRank {
                     score = (1 - sum) / scores.size();
                 }
             }   
-        } 
+        }  else {
+            // Si no tiene links entrantes
+            score = this.tempScores.get(docId);
+        }
         
         return score;
     }
     
-    /**
-     *  Test
-     */
-    public static void main (String args[]) {
-        
-        PageRank pr = new PageRank();
-        String ruta = "./src/grafo1.txt";
-        pr.loadLinks(ruta);       
-        
-    }
+
     
     // POR HACER:
 /*    
@@ -231,18 +230,4 @@ public class PageRank {
     offline (en tiempo de indexado) y estén disponibles en el momento de 
     procesar consultas.
 */
-    
-/*
-    Para probar y validar la implementación de PageRank realizada, se pide 
-    desarrollar dos programas (métodos main) enlas siguientes clases: 
-*/
-    
-    /*
-    • Se recomienda, al menos inicialmente, llevar a cabo una implementación con la que los valores de PageRank
-sumen 1, para ayudar a la validación de la misma. Posteriormente, si se desea, se pueden escalar (o no, a
-criterio del estudiante) los cálculos omitiendo la división por el número total de páginas en el grafo.
-    
-    • Será necesario tratar los nodos sumidero tal como se ha explicado en las clases de teoría. Se recomienda
-comprobar el correcto funcionamiento del algoritmo en un pequeño grafo con algún nodo sumidero. 
-    */
 }
