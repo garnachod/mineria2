@@ -27,6 +27,8 @@ public class PageRank {
     
     // Valor de PageRank calculado para cada identificador de documento
     private final HashMap<String, Double> scores;
+    
+    // Tabla temporal para el calculo interativo de Pageranks
     private HashMap<String, Double> tempScores;
     
     private static final double r = 0.15;
@@ -197,7 +199,13 @@ public class PageRank {
                 if (outlinkNumber > 0.0) { 
                     score = score + ((1 - r) * (scores.get(link) / outlinkNumber));
                 } else {
-                    // SUMIDERO
+                    
+                    // Si es un sumidero, score = (1 - Sumatorio(scoresTemporales)) / N
+                    double sum = 0;
+                    for (String tempDocId : tempScores.keySet()) {
+                        sum += tempScores.get(tempDocId);
+                    }
+                    score = (1 - sum) / scores.size();
                 }
             }   
         } 

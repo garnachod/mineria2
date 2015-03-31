@@ -1,4 +1,5 @@
-A 2 C B
-B 1 C
-C 1 A
+A 2 B E
+B 4 A B C E 
+C 3 A D E
 D 1 C
+E 1 B
