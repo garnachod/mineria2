@@ -27,6 +27,7 @@ public class PageRank {
     
     // Valor de PageRank calculado para cada identificador de documento
     private final HashMap<String, Double> scores;
+    private HashMap<String, Double> tempScores;
     
     private static final double r = 0.15;
     
@@ -129,11 +130,15 @@ public class PageRank {
         // Condición de convergencia (50 veces)
         for (int i = 0; i < maxIterations; i++) {
             
-            for (String docId : scores.keySet()) {
-                scores.put(docId, calculateScore(docId));
-            }
+            // Actualizar todos los pageranks
+            updateScores();
             
             System.out.println(this.scores);
+            double sum = 0;
+                for (String docId : scores.keySet()) {
+                sum += scores.get(docId);
+            }
+            System.out.println(sum);
         }
     }
     
@@ -142,8 +147,8 @@ public class PageRank {
      */
     private void initScores() {
         for (String docId : outlinkList.keySet()) {
+            scores.put(docId, 1/(double)this.outlinkList.size());
             if (this.outlinkList.get(docId) != null) {
-                scores.put(docId, 1/(double)this.outlinkList.size());
                 for (String link : this.outlinkList.get(docId)) {
                     scores.put(link, 1/(double)this.outlinkList.size());
                 }   
@@ -152,17 +157,41 @@ public class PageRank {
     }
     
     /**
+     * Actualiza los scores usando tempScores como tabla intermedia
+     */
+    private void updateScores() {
+        
+        tempScores = new HashMap<>();
+        
+        // Inicializa scores temporales a r/N
+        for (String docId : scores.keySet()) {
+            tempScores.put(docId, r / (double)scores.size());
+        }
+        
+        // Actualiza scores parciales
+        for (String docId : tempScores.keySet()) {
+            tempScores.put(docId, calculateScore(docId));
+        }
+        
+        // Copia scores parciales actualizados
+        for (String docId: tempScores.keySet()) {
+            scores.put(docId, tempScores.get(docId));
+        }
+        
+    }
+
+    /**
      * Calcula el PageRank asociado a un documento mediante iteración Jacobiana
      * @param docId
      * @return Valor de PageRank
      */
     private double calculateScore (String docId) {
         
-        double score;
+        double score = this.tempScores.get(docId);
         
         // Si tiene links entrantes
         if (this.inlinkList.get(docId) != null) {
-            score = this.scores.get(docId);
+            
             for (String link : this.inlinkList.get(docId)) {
                 double outlinkNumber = (double)outlinkCount.get(link);
                 if (outlinkNumber > 0.0) { 
@@ -171,17 +200,14 @@ public class PageRank {
                     // SUMIDERO
                 }
             }   
-        } else {
-            // No tiene links entrantes
-            score = r / (double)scores.size();
-        }
+        } 
         
         return score;
     }
     
-    /*
-    Test
-    */
+    /**
+     *  Test
+     */
     public static void main (String args[]) {
         
         PageRank pr = new PageRank();
@@ -211,6 +237,4 @@ criterio del estudiante) los cálculos omitiendo la división por el número tot
     • Será necesario tratar los nodos sumidero tal como se ha explicado en las clases de teoría. Se recomienda
 comprobar el correcto funcionamiento del algoritmo en un pequeño grafo con algún nodo sumidero. 
     */
-
-
 }
