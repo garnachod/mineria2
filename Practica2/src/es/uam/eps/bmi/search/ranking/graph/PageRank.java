@@ -22,8 +22,14 @@ public class PageRank {
     // Lista de enlaces salientes en la colección para cada identificador
     private final HashMap<String, ArrayList<String>> outlinkList;
     
+    // Lista de enlaces entrantes en la colección para cada identificador
+    private final HashMap<String, ArrayList<String>> inlinkList;
+    
     // Valor de PageRank calculado para cada identificador de documento
     private final HashMap<String, Double> scores;
+    
+    private static final double r = 0.15;
+    
     
     /**
      * Constructor
@@ -31,6 +37,7 @@ public class PageRank {
     public PageRank () {
         this.outlinkCount = new HashMap<>();
         this.outlinkList = new HashMap<>();
+        this.inlinkList = new HashMap<>();
         this.scores = new HashMap<>();
     }
     
@@ -61,7 +68,7 @@ public class PageRank {
                     // Guardar nº de outlinks
                     this.outlinkCount.put(tokens[0], Integer.parseInt(tokens[1]));
 
-                    // Guardar enlaces si los hay                    
+                    // Guardar enlaces salientes si los hay                    
                     if (tokens.length > 2) {
                         ArrayList<String> links = new ArrayList<>();
                         for (int i = 2; i < tokens.length; i++) {
@@ -70,12 +77,14 @@ public class PageRank {
                         this.outlinkList.put(tokens[0], links);
                     }
                 }
-            }
+           }
+           
+            // Calcula enlaces entrantes (inlink) a partir de los salientes
+            calculateInlinkList();
             
             // Calcula y almacena scores
             calculateScores();
             
-            System.out.println(this.scores);
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PageRank.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,11 +94,60 @@ public class PageRank {
     }
     
     /**
+     * Calcula enlaces entrantes (inlink) a partir de los salientes
+     */
+    private void calculateInlinkList() {
+        // Para cada doc coger sus enlances salientes
+            for (String docId : outlinkList.keySet()) {
+                
+                // Para cada documento destino agregar enlace entrante 
+                for (String outlink : outlinkList.get(docId)) {
+                    ArrayList<String> links = inlinkList.get(outlink);
+                    if (links == null) {
+                        links = new ArrayList<>();
+                    }
+                    links.add(docId);
+                    inlinkList.put(outlink, links);
+                }
+            }
+            System.out.println(inlinkList);
+    }
+
+    
+    /**
      * Calcula y almacena los pageranks de todos los documentos cargados
      */
     private void calculateScores() {
-        for (String docId : outlinkCount.keySet()) {
-            scores.put(docId, calculateScore(docId));
+        
+        int maxIterations = 50; // Ver http://www.webmasterworld.com/forum3/25867.htm
+        
+        // Inicializar scores a 1/N
+        initScores();
+        
+        System.out.println(this.scores);
+            
+        // Condición de convergencia (50 veces)
+        for (int i = 0; i < maxIterations; i++) {
+            
+            for (String docId : scores.keySet()) {
+                scores.put(docId, calculateScore(docId));
+            }
+            
+            System.out.println(this.scores);
+        }
+    }
+    
+    /**
+     * Inicializa tabla de scores a 1/N
+     */
+    private void initScores() {
+        for (String docId : outlinkList.keySet()) {
+            if (this.outlinkList.get(docId) != null) {
+                scores.put(docId, 1/(double)this.outlinkList.size());
+                for (String link : this.outlinkList.get(docId)) {
+                    scores.put(link, 1/(double)this.outlinkList.size());
+                }   
+            }
         }
     }
     
@@ -100,18 +158,25 @@ public class PageRank {
      */
     private double calculateScore (String docId) {
         
-        double r = 0.15;
-        int N = this.outlinkCount.size();
-        double pagerank = 1 / N;
-        int maxIterations = 40; // Ver http://www.webmasterworld.com/forum3/25867.htm
+        double score;
         
-        if (this.outlinkCount.get(docId) > 0) {
-            for (String link : this.outlinkList.get(docId)) {
-
+        // Si tiene links entrantes
+        if (this.inlinkList.get(docId) != null) {
+            score = this.scores.get(docId);
+            for (String link : this.inlinkList.get(docId)) {
+                double outlinkNumber = (double)outlinkCount.get(link);
+                if (outlinkNumber > 0.0) { 
+                    score = score + ((1 - r) * (scores.get(link) / outlinkNumber));
+                } else {
+                    // SUMIDERO
+                }
             }   
+        } else {
+            // No tiene links entrantes
+            score = r / (double)scores.size();
         }
         
-        return pagerank;
+        return score;
     }
     
     /*
@@ -120,7 +185,7 @@ public class PageRank {
     public static void main (String args[]) {
         
         PageRank pr = new PageRank();
-        String ruta = "C:\\Users\\diego.castaño\\Desktop\\grafo1.txt";
+        String ruta = "./src/grafo1.txt";
         pr.loadLinks(ruta);       
         
     }
@@ -146,5 +211,6 @@ criterio del estudiante) los cálculos omitiendo la división por el número tot
     • Será necesario tratar los nodos sumidero tal como se ha explicado en las clases de teoría. Se recomienda
 comprobar el correcto funcionamiento del algoritmo en un pequeño grafo con algún nodo sumidero. 
     */
+
 
 }

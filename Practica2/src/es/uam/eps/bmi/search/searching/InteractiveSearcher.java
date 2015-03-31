@@ -83,7 +83,7 @@ public class InteractiveSearcher {
 
             // Lo carga en el buscador
             s.build(index);
-
+            
             // Solicita consulta de forma iterativa
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
