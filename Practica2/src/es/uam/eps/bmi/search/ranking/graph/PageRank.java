@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,23 +17,29 @@ import java.util.logging.Logger;
  */
 public class PageRank {
     
+    // Flag para imprimit iteraciones
+    private boolean verbose = false;
+    
     // Número de enlaces salientes para cada identificador 
-    private final HashMap<String, Integer> outlinkCount;
+    private HashMap<String, Integer> outlinkCount;
     
     // Lista de enlaces salientes en la colección para cada identificador
-    private final HashMap<String, ArrayList<String>> outlinkList;
+    private HashMap<String, ArrayList<String>> outlinkList;
     
     // Lista de enlaces entrantes en la colección para cada identificador
-    private final HashMap<String, ArrayList<String>> inlinkList;
+    private HashMap<String, ArrayList<String>> inlinkList;
     
     // Valor de PageRank calculado para cada identificador de documento
-    private final HashMap<String, Double> scores;
+    private HashMap<String, Double> scores;
     
     // Tabla temporal para el calculo interativo de Pageranks
     private HashMap<String, Double> tempScores;
     
+    // Factor de teleport
     private static final double r = 0.15;
     
+    // Número total de links distintos
+    private static int N = 0;
     
     /**
      * Constructor
@@ -42,6 +49,14 @@ public class PageRank {
         this.outlinkList = new HashMap<>();
         this.inlinkList = new HashMap<>();
         this.scores = new HashMap<>();
+    }
+    
+    /**
+     * 
+     * @param v 
+     */
+    public void setVerbose(Boolean v) {
+        verbose = v;
     }
     
     /**
@@ -57,10 +72,18 @@ public class PageRank {
     /**
      * Calcula los valores de PageRank de los documentos a partir de un fichero 
      * de enlaces dado.
-     * @param args 
+     * @param filename Ruta del fichero
      */
     public void loadLinks (String filename) {
+        
+        // Descartar links anteriores si los hiubiera
+        this.outlinkCount = new HashMap<>();
+        this.outlinkList = new HashMap<>();
+        this.inlinkList = new HashMap<>();
+        this.scores = new HashMap<>();
+        
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            HashSet set = new HashSet();
             String line;
             
             // Para cada línea
@@ -70,16 +93,23 @@ public class PageRank {
                     
                     // Guardar nº de outlinks
                     this.outlinkCount.put(tokens[0], Integer.parseInt(tokens[1]));
-
+                    
+                    // Contar link origen
+                    set.add(tokens[0]);
+                    
                     // Guardar enlaces salientes si los hay   
                     ArrayList<String> links = new ArrayList<>();
                     for (int i = 2; i < tokens.length; i++) {
                         links.add(tokens[i]);
+                        // Contar links destino
+                        set.add(tokens[i]);
                     }    
                     this.outlinkList.put(tokens[0], links);
                     
                 }
-           }
+            }
+            
+            N = set.size();
            
             // Calcula enlaces entrantes (inlink) a partir de los salientes
             calculateInlinkList();
@@ -125,24 +155,27 @@ public class PageRank {
         // Inicializar scores a 1/N
         initScores();
         
-        System.out.println(this.scores);
-            
-            System.out.println("PageRanks: " + this.scores);
-            double sum = 0;
-                for (String docId : scores.keySet()) {
-                sum += scores.get(docId);
-            }
-            System.out.println("La suma de los PageRank es " + sum);
-            
+        // Imprimir pageranks iniciales
+        if (verbose) {
+            System.out.println("PageRanks iniciales: " + this.scores);
+        }
+        
         // Condición de convergencia (50 veces)
         for (int i = 0; i < maxIterations; i++) {
             
             // Actualizar todos los pageranks
             updateScores();
             
-            System.out.println("PageRanks: " + this.scores);
-            sum = 0;
-                for (String docId : scores.keySet()) {
+            // Imprimir pageranks
+            if (verbose) {
+                System.out.println("PageRanks en iteración " + (i + 1) + ": " + this.scores);
+            }
+        }
+        
+        // Imprimir suma de scores
+        if (verbose) {
+            double sum = 0;
+            for (String docId : scores.keySet()) {
                 sum += scores.get(docId);
             }
             System.out.println("La suma de los PageRank es " + sum);
@@ -154,10 +187,10 @@ public class PageRank {
      */
     private void initScores() {
         for (String docId : outlinkCount.keySet()) {
-            scores.put(docId, 1/(double)this.outlinkCount.size());
+            scores.put(docId, 1/(double)N);
             if (this.outlinkList.get(docId) != null) {
                 for (String link : this.outlinkList.get(docId)) {
-                    scores.put(link, 1/(double)this.outlinkCount.size());
+                    scores.put(link, 1/(double)N);
                 }   
             }
         }
@@ -172,7 +205,7 @@ public class PageRank {
         
         // Inicializa scores temporales a r/N
         for (String docId : scores.keySet()) {
-            tempScores.put(docId, r / (double)scores.size());
+            tempScores.put(docId, r / (double)N);
         }
         
         // Actualiza scores parciales
@@ -180,9 +213,16 @@ public class PageRank {
             tempScores.put(docId, calculateScore(docId));
         }
         
+        // Calcula sumatorio de scores parciales para controlar sumideros
+        double tempSum = 0;
+        for (String docId: tempScores.keySet()) {
+            tempSum += tempScores.get(docId);
+        }
+        
         // Copia scores parciales actualizados
         for (String docId: tempScores.keySet()) {
-            scores.put(docId, tempScores.get(docId));
+            double finalScore = tempScores.get(docId) + ((1 - tempSum) / N);
+            scores.put(docId, finalScore);
         }
         
     }
@@ -198,24 +238,9 @@ public class PageRank {
         
         // Si tiene links entrantes
         if (this.inlinkList.get(docId) != null) {
-            
             for (String link : this.inlinkList.get(docId)) {
-                double outlinkNumber = (double)outlinkCount.get(link);
-                if (outlinkNumber > 0.0) { 
-                    score = score + ((1 - r) * (scores.get(link) / outlinkNumber));
-                } else {
-                    
-                    // Si es un sumidero, score = (1 - Sumatorio(scoresTemporales)) / N
-                    double sum = 0;
-                    for (String tempDocId : tempScores.keySet()) {
-                        sum += tempScores.get(tempDocId);
-                    }
-                    score = (1 - sum) / scores.size();
-                }
-            }   
-        }  else {
-            // Si no tiene links entrantes
-            score = this.tempScores.get(docId);
+                score += ((1 - r) * (scores.get(link) / (double)outlinkCount.get(link)));
+            }               
         }
         
         return score;
