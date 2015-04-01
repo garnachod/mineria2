@@ -83,19 +83,31 @@ public class ProximalSearcher implements Searcher{
                 //iterador de las posiciones del primer posting
                 ListIterator<Long> listIteratorP = primerMP.getPosting().getTermPositions().listIterator();
                 //generamos un array de lista de posiciones
+                //no me gusta esto, un heap?
                 ArrayList<List<Long>> listaDeListasDePos = new ArrayList<>();
                 for(int i = 1; i < listMerges.size(); i++){
                     listaDeListasDePos.add(listMerges.get(i).getPosting().getTermPositions());
                 }
+                //
+                //heap, insertamos las posiciones con su lista en un objeto creado a proposito
+                //cogemos el menor, el primero del heap
+                //cogemos todos los demás buscando el mayor
+                //recorremos todos los que no sean el mayor mirando si son menores ->
+                //      que el mayor sus siguente elementos si no lo son avanzamos el puntero.
+                //en este paso seguimos buscando el menor
+                //ya tenemos a  y  b
+                //insertamos en el heap con todos sin avanzar excepto el menor
+                
                            
                 double score = 0.0;
-                //todo
+                //TO DO
                 String docid = primero.getDocID();
                 ScoredTextDocument scored = new ScoredTextDocument(docid, score);
                 listaDocs.add(scored);
 
             }
             //insertamos los docs en el heap de nuevo
+            //esto no
             for(MergePostings mp: listMerges){
                 if(mp.hasNext()){
                     mp.avanzaPuntero();
