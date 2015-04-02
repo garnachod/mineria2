@@ -26,6 +26,10 @@ public class ScoredTextDocument implements Comparable {
     public double getScore() {
         return score;
     }
+    
+    public void setScore(double score){
+        this.score = score;
+    }
 
     @Override
     public int compareTo(Object o) {

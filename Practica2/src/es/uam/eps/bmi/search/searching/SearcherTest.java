@@ -10,6 +10,7 @@ import es.uam.eps.bmi.search.indexing.IndexBuilder;
 import es.uam.eps.bmi.search.indexing.StemIndex;
 import es.uam.eps.bmi.search.indexing.StopwordIndex;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
+import es.uam.eps.bmi.search.ranking.aggregation.WeightedSumRankAggregator;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -93,6 +94,7 @@ public class SearcherTest {
             System.out.println("Basic + Literal\t" + getPrecisionResults(basic, literal, queries, relevantFilenames));
             System.out.println("Basic + TFIDF\t" + getPrecisionResults(basic, tfidf, queries, relevantFilenames));
             System.out.println("Basic + proximal\t" + getPrecisionResults(basic, proximal, queries, relevantFilenames));
+            System.out.println("Basic + TFIDF + proximal \t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames, proximal, tfidf));
             // Free index
             basic = null;
             System.gc();
@@ -109,6 +111,7 @@ public class SearcherTest {
             System.out.println("Stopword + Literal\t" + getPrecisionResults(stopword, literal, queries, relevantFilenames));
             System.out.println("Stopword + TFIDF\t" + getPrecisionResults(stopword, tfidf, queries, relevantFilenames));
             System.out.println("Stopword + proximal\t" + getPrecisionResults(stopword, proximal, queries, relevantFilenames));
+            System.out.println("Stopword + TFIDF + proximal \t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames, proximal, tfidf));
             // Free index
             stopword = null;
             System.gc();
@@ -124,6 +127,8 @@ public class SearcherTest {
             System.out.println("Stem + Literal\t" + getPrecisionResults(stem, literal, queries, relevantFilenames));
             System.out.println("Stem + TFIDF\t" + getPrecisionResults(stem, tfidf, queries, relevantFilenames));
             System.out.println("Stem + proximal\t" + getPrecisionResults(stem, proximal, queries, relevantFilenames));
+            System.out.println("Stem + TFIDF + proximal \t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames, proximal, tfidf));
+
             // Free index
             stem = null;
             System.gc();
@@ -139,6 +144,8 @@ public class SearcherTest {
             System.out.println("Advanced + Literal\t" + getPrecisionResults(advanced, literal, queries, relevantFilenames));
             System.out.println("Advanced + TFIDF\t" + getPrecisionResults(advanced, tfidf, queries, relevantFilenames));
             System.out.println("Advanced + proximal\t" + getPrecisionResults(advanced, proximal, queries, relevantFilenames));
+            System.out.println("Advanced + TFIDF + proximal \t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames, proximal, tfidf));
+
             // Free index
             advanced = null;
             System.gc();
@@ -172,4 +179,35 @@ public class SearcherTest {
             Double averageP10 = Math.round(100.0 * RelevanceUtils.calculateAverage(p10s)) / 100.0;
             return averageP5 + "\t" + averageP10;
     }
+    
+    
+    private static String getPrecisionResultsAggregator (Index i, ArrayList<String> queries, ArrayList<ArrayList<String>> relevantFilenames, Searcher ... searcher){
+        // Calcular precisiones para cada consulta en Basic index + Boolean AND 
+        ArrayList<Searcher> searchers = new ArrayList<>();
+        for(Searcher s:searcher){
+            s.build(i);
+            searchers.add(s);
+        }
+        
+        RelevanceUtils.setIndex(i);
+
+        ArrayList<Double> p5s = new ArrayList<>();
+        ArrayList<Double> p10s = new ArrayList<>();
+
+        for (int j = 0; j < queries.size(); j++) {
+            ArrayList<List<ScoredTextDocument>> scores = new ArrayList<>();
+            for(Searcher s:searchers){
+                List<ScoredTextDocument> results = s.search(queries.get(j));
+                scores.add(results);
+            }
+            List<ScoredTextDocument> results = WeightedSumRankAggregator.sum(scores);
+            p5s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(j), 5));
+            p10s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(j), 10));
+        }
+
+        Double averageP5 = Math.round(100.0 * RelevanceUtils.calculateAverage(p5s)) / 100.0;
+        Double averageP10 = Math.round(100.0 * RelevanceUtils.calculateAverage(p10s)) / 100.0;
+        return averageP5 + "\t" + averageP10;
+    }
+    
 }
