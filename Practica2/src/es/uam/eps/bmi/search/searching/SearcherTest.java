@@ -69,7 +69,8 @@ public class SearcherTest {
             BooleanSearcher booleanAND = new BooleanSearcher(BooleanSearcher.Mode.AND);
             BooleanSearcher booleanOR = new BooleanSearcher(BooleanSearcher.Mode.OR);
             LiteralMatchingSearcher literal = new LiteralMatchingSearcher();
-            TFIDFSearcher tfidf = new TFIDFSearcher();            
+            TFIDFSearcher tfidf = new TFIDFSearcher();
+            ProximalSearcher proximal = new ProximalSearcher();
             
             // Almacenar consultas
             ArrayList<String> queries = RelevanceUtils.parseQueries(queriesPath);
@@ -91,7 +92,7 @@ public class SearcherTest {
             System.out.println("Basic + Boolean OR\t" + getPrecisionResults(basic, booleanOR, queries, relevantFilenames));
             System.out.println("Basic + Literal\t" + getPrecisionResults(basic, literal, queries, relevantFilenames));
             System.out.println("Basic + TFIDF\t" + getPrecisionResults(basic, tfidf, queries, relevantFilenames));
-            
+            System.out.println("Basic + proximal\t" + getPrecisionResults(basic, proximal, queries, relevantFilenames));
             // Free index
             basic = null;
             System.gc();
@@ -107,7 +108,7 @@ public class SearcherTest {
             System.out.println("Stopword + Boolean OR\t" + getPrecisionResults(stopword, booleanOR, queries, relevantFilenames));
             System.out.println("Stopword + Literal\t" + getPrecisionResults(stopword, literal, queries, relevantFilenames));
             System.out.println("Stopword + TFIDF\t" + getPrecisionResults(stopword, tfidf, queries, relevantFilenames));
-            
+            System.out.println("Stopword + proximal\t" + getPrecisionResults(stopword, proximal, queries, relevantFilenames));
             // Free index
             stopword = null;
             System.gc();
@@ -122,7 +123,7 @@ public class SearcherTest {
             System.out.println("Stem + Boolean OR\t" + getPrecisionResults(stem, booleanOR, queries, relevantFilenames));
             System.out.println("Stem + Literal\t" + getPrecisionResults(stem, literal, queries, relevantFilenames));
             System.out.println("Stem + TFIDF\t" + getPrecisionResults(stem, tfidf, queries, relevantFilenames));
-            
+            System.out.println("Stem + proximal\t" + getPrecisionResults(stem, proximal, queries, relevantFilenames));
             // Free index
             stem = null;
             System.gc();
@@ -137,7 +138,7 @@ public class SearcherTest {
             System.out.println("Advanced + Boolean OR\t" + getPrecisionResults(advanced, booleanOR, queries, relevantFilenames));
             System.out.println("Advanced + Literal\t" + getPrecisionResults(advanced, literal, queries, relevantFilenames));
             System.out.println("Advanced + TFIDF\t" + getPrecisionResults(advanced, tfidf, queries, relevantFilenames));
-            
+            System.out.println("Advanced + proximal\t" + getPrecisionResults(advanced, proximal, queries, relevantFilenames));
             // Free index
             advanced = null;
             System.gc();

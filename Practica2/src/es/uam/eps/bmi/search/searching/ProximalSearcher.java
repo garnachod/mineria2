@@ -78,33 +78,69 @@ public class ProximalSearcher implements Searcher{
             }
             
             if(flagMismoDoc == true){
-                //ahora hay que recorrer cada posting list a la vez
-                MergePostings primerMP = listMerges.get(0);
-                //iterador de las posiciones del primer posting
-                ListIterator<Long> listIteratorP = primerMP.getPosting().getTermPositions().listIterator();
-                //generamos un array de lista de posiciones
-                //no me gusta esto, un heap?
-                ArrayList<List<Long>> listaDeListasDePos = new ArrayList<>();
-                for(int i = 1; i < listMerges.size(); i++){
-                    listaDeListasDePos.add(listMerges.get(i).getPosting().getTermPositions());
-                }
-                //
+                PriorityQueue<PositionsUtility> positionHeap = new PriorityQueue<>();
                 //heap, insertamos las posiciones con su lista en un objeto creado a proposito
-                //cogemos el menor, el primero del heap
-                //cogemos todos los demás buscando el mayor
-                //recorremos todos los que no sean el mayor mirando si son menores ->
-                //      que el mayor sus siguente elementos si no lo son avanzamos el puntero.
-                //en este paso seguimos buscando el menor
-                //ya tenemos a  y  b
-                //insertamos en el heap con todos sin avanzar excepto el menor
-                
-                           
+                for(MergePostings mp:listMerges){
+                    PositionsUtility posUtil = new PositionsUtility(mp.getPosting().getTermPositions());
+                    positionHeap.add(posUtil);
+                }
                 double score = 0.0;
-                //TO DO
+                while(!positionHeap.isEmpty()){
+                    //cogemos el menor, el primero del heap
+                    ArrayList<PositionsUtility> listaPosAux = new ArrayList<>();
+                    PositionsUtility menor = positionHeap.poll();
+                    listaPosAux.add(menor);
+                    PositionsUtility ultimoSacado = null;
+                    PositionsUtility maximo = null;
+                    
+
+                    //cogemos todos los demás buscando el mayor
+                    while(!positionHeap.isEmpty()){
+                        ultimoSacado = positionHeap.poll();
+                        if(positionHeap.size()>=1){
+                            listaPosAux.add(ultimoSacado);
+                        }
+                    }
+                    if(ultimoSacado == null){
+                        score = menor.getLongitud();
+                    }else{
+                        maximo = ultimoSacado;
+                        long maximoNumero = maximo.getPosition();
+                        boolean flagContinua = true;
+                        //recorremos todos los que no sean el mayor mirando si son menores ->
+                        //      que el mayor sus siguente elementos si no lo son avanzamos el puntero.
+                        while(flagContinua){
+                            flagContinua = false;
+                            for(int i = 0; i < listaPosAux.size(); i++){
+                                if(listaPosAux.get(i).nextSinAvanzar() < maximoNumero){
+                                    flagContinua = true;
+                                    listaPosAux.get(i).avanzaPuntero();
+                                }
+                            }
+                        }
+                        for(PositionsUtility pu:listaPosAux){
+                            positionHeap.add(pu);
+                        }
+                        menor = positionHeap.poll();
+                        //ya tenemos a  y  b
+                        long bMenosA = maximoNumero - menor.getPosition();
+                        score += 1.0/ (double)bMenosA;
+                        //insertamos en el heap con todos sin avanzar excepto el menor
+                        //si no se puede avanzar se termina
+                        if(menor.hasNext()){
+                            menor.avanzaPuntero();
+                            positionHeap.add(menor);
+                            positionHeap.add(maximo);
+                        }else{
+                            positionHeap.clear();
+                        }
+                    }
+                }
+                
                 String docid = primero.getDocID();
                 ScoredTextDocument scored = new ScoredTextDocument(docid, score);
                 listaDocs.add(scored);
-
+                
             }
             //insertamos los docs en el heap de nuevo
             //esto no
@@ -139,6 +175,6 @@ public class ProximalSearcher implements Searcher{
     * @param args Ruta del fichero de config
     */
     public static void main (String[] args) {
-        InteractiveSearcher.main(args, new LiteralMatchingSearcher());
+        InteractiveSearcher.main(args, new ProximalSearcher());
     }
 }
