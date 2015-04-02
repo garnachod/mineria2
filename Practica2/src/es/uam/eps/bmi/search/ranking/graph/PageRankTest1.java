@@ -25,7 +25,11 @@ public class PageRankTest1 {
         
         System.out.println("Resolviendo grafo 1K");
         ruta = "./src/links_1K.txt";
-        pr.loadLinks(ruta);    
+        pr.loadLinks(ruta);
+        
+        System.out.println("Resolviendo grafo 10K");
+        ruta = "./src/links_10K.txt";
+        pr.loadLinks(ruta); 
 
         System.out.println("Resolviendo grafo 100K");
         ruta = "./src/links_100K.txt";
