@@ -66,4 +66,7 @@ public interface Index {
     public Long getNDocsIndex();
     
     public Long getBytesDocument(String docId);
+    
+    public void buildPagerank(String outputIndexPath, String linksFile);
+    public double getPageRankDocId(String docid);
 }

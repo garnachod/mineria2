@@ -5,6 +5,7 @@ import es.uam.eps.bmi.search.TextDocument;
 import es.uam.eps.bmi.search.parsing.SimpleNormalizer;
 import es.uam.eps.bmi.search.parsing.SimpleTokenizer;
 import es.uam.eps.bmi.search.parsing.TextParser;
+import es.uam.eps.bmi.search.ranking.graph.PageRank;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -45,6 +46,7 @@ public class BasicIndex implements Index{
     protected ZipFile zip;
     protected DataInputStream indexFile = null;
     private HashMap<String, InfoDocumentoIndex> indexedIDtoFile;
+    private PageRank pageRank = null;
     
     //String el termino y Long la posicion desde el principio del fichero
     //de la lista de postings que lo determina
@@ -98,12 +100,34 @@ public class BasicIndex implements Index{
         }
         
     }
+    
+    @Override
+    public void buildPagerank(String outputIndexPath, String linksFile){
+        String nombreFicheroPagerank = outputIndexPath + "\\pagerank.data";
+        PageRank pr = new PageRank();
+        pr.setVerbose(false);
+        pr.loadLinks(linksFile);
+        pr.toFile(nombreFicheroPagerank);
+    }
+    
+    @Override
+    public double getPageRankDocId(String docid){
+        InfoDocumentoIndex info = this.indexedIDtoFile.get(docid);
+        String nombreFPR = info.getNombre();
+        return this.pageRank.getScoreOf(nombreFPR);
+    }
 
     @Override
     public void load(String indexPath) {
         this.outputIndexPath = indexPath;
         this.indexedIDtoFile = new HashMap<>();
         try{
+            //Load pagerank
+            String nombreFicheroPagerank = outputIndexPath + "\\pagerank.data";
+            PageRank pr = new PageRank();
+            pr.fromFile(nombreFicheroPagerank);
+            this.pageRank = pr;
+            
             // Load idFileToName
             String nombreFichero = indexPath + "\\idFileToName.data";
             DataInputStream dis = new DataInputStream(new FileInputStream(nombreFichero));
@@ -492,6 +516,10 @@ public class BasicIndex implements Index{
         
         public String getNombreCompleto(){
             return this.nombreCompleto;
+        }
+        
+        public String getNombre(){
+            return this.nombreCompleto.split("\\.")[0];
         }
         
         public long getTamBytes(){

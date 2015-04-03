@@ -45,6 +45,7 @@ public class IndexBuilder {
      
             String collectionPath = doc.getElementsByTagName("collection-folder").item(0).getTextContent();
             String indexPath = doc.getElementsByTagName("index-folder").item(0).getTextContent();
+            String linksDoc = doc.getElementsByTagName("links-doc").item(0).getTextContent();
             
             // Genera basic index
             System.out.println("Creando basic index");
@@ -53,6 +54,7 @@ public class IndexBuilder {
             basicFolder.mkdir();
             BasicIndex basic = new BasicIndex();
             basic.build(collectionPath, basicPath, parser);
+            basic.buildPagerank(basicPath, linksDoc);
            
             // Genera stopword index
             System.out.println("Creando stopwords index");
@@ -62,6 +64,7 @@ public class IndexBuilder {
             stopwordFolder.mkdir();
             StopwordIndex stopword = new StopwordIndex(stopwordsList);
             stopword.build(collectionPath, stopwordPath, parser);
+            stopword.buildPagerank(stopwordPath, linksDoc);
             
             // Genera stem index
             System.out.println("Creando stem index");
@@ -70,6 +73,7 @@ public class IndexBuilder {
             stemFolder.mkdir();
             StemIndex stem = new StemIndex();
             stem.build(collectionPath, stemPath, parser);
+            stem.buildPagerank(stemPath, linksDoc);
             
             // Genera advanced index
             System.out.println("Creando advanced index");
@@ -78,6 +82,7 @@ public class IndexBuilder {
             advancedFolder.mkdir();
             AdvancedIndex advanced = new AdvancedIndex(stopwordsList);
             advanced.build(collectionPath, advancedPath, parser);
+            advanced.buildPagerank(advancedPath, linksDoc);
             
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(IndexBuilder.class.getName()).log(Level.SEVERE, null, ex);

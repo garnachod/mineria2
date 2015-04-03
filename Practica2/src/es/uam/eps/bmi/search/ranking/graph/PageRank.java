@@ -1,8 +1,14 @@
 
 package es.uam.eps.bmi.search.ranking.graph;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,8 +71,11 @@ public class PageRank {
      * @param documentId Identificador de un documento
      * @return 
      */
-    double getScoreOf(String documentId) {
-        return this.scores.get(documentId);
+    public double getScoreOf(String documentId) {
+        if(this.scores.containsKey(documentId)){
+            return this.scores.get(documentId);
+        }
+        return 0;
     }
     
     /**
@@ -245,8 +254,34 @@ public class PageRank {
         
         return score;
     }
-    
-
+    //se presupone generado
+    public void toFile(String nombreFichero){
+        try {
+            DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(nombreFichero)));
+            for(String key:this.scores.keySet()){
+                dos.writeUTF(key);
+                dos.writeDouble(this.scores.get(key));
+            }
+            dos.close();
+        } catch (Exception ex) {
+            Logger.getLogger(PageRank.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    //carga de un fichero
+    public void fromFile(String nombreFichero){
+        try {
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(nombreFichero)));
+            this.scores = new HashMap<>();
+            while(dis.available() > 0){
+                String key = dis.readUTF();
+                double pagerank = dis.readDouble();
+                this.scores.put(key, pagerank);
+            }
+            dis.close();
+        } catch (Exception ex) {
+            Logger.getLogger(PageRank.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     // POR HACER:
 /*    
