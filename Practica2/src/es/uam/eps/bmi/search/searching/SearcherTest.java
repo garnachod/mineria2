@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,9 +97,9 @@ public class SearcherTest {
             System.out.println("Basic + TFIDF\t" + getPrecisionResults(basic, tfidf, queries, relevantFilenames));
             System.out.println("Basic + proximal\t" + getPrecisionResults(basic, proximal, queries, relevantFilenames));
             System.out.println("Basic + PageRank\t" + getPrecisionResults(basic, pageRankS, queries, relevantFilenames));
-            System.out.println("Basic + TFIDF + PageRank\t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames,pageRankS, tfidf));
-            System.out.println("Basic + Literal + PageRank\t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames,pageRankS, literal));
-            System.out.println("Basic + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames, proximal, tfidf, pageRankS));
+            System.out.println("Basic + TFIDF + PageRank\t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, tfidf));
+            System.out.println("Basic + Literal + PageRank\t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, literal));
+            System.out.println("Basic + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(basic, queries, relevantFilenames,Arrays.asList(0.4,0.4,0.25), proximal, tfidf, pageRankS));
             // Free index
             basic = null;
             System.gc();
@@ -116,9 +117,9 @@ public class SearcherTest {
             System.out.println("Stopword + TFIDF\t" + getPrecisionResults(stopword, tfidf, queries, relevantFilenames));
             System.out.println("Stopword + proximal\t" + getPrecisionResults(stopword, proximal, queries, relevantFilenames));
             System.out.println("Stopword + PageRank\t" + getPrecisionResults(stopword, pageRankS, queries, relevantFilenames));
-            System.out.println("Stopword + TFIDF + PageRank\t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames,pageRankS, tfidf));
-            System.out.println("Stopword + Literal + PageRank\t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames,pageRankS, literal));
-            System.out.println("Stopword + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames, proximal, tfidf, pageRankS));
+            System.out.println("Stopword + TFIDF + PageRank\t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, tfidf));
+            System.out.println("Stopword + Literal + PageRank\t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, literal));
+            System.out.println("Stopword + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(stopword, queries, relevantFilenames,Arrays.asList(0.33,0.33,0.33), proximal, tfidf, pageRankS));
             // Free index
             stopword = null;
             System.gc();
@@ -134,9 +135,9 @@ public class SearcherTest {
             System.out.println("Stem + Literal\t" + getPrecisionResults(stem, literal, queries, relevantFilenames));
             System.out.println("Stem + TFIDF\t" + getPrecisionResults(stem, tfidf, queries, relevantFilenames));
             System.out.println("Stem + proximal\t" + getPrecisionResults(stem, proximal, queries, relevantFilenames));
-            System.out.println("Stem + TFIDF + PageRank\t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames,pageRankS, tfidf));
-            System.out.println("Stem + Literal + PageRank\t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames,pageRankS, literal));
-            System.out.println("Stem + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames, proximal, tfidf, pageRankS));
+            System.out.println("Stem + TFIDF + PageRank\t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames,Arrays.asList(0.5,0.5), pageRankS, tfidf));
+            System.out.println("Stem + Literal + PageRank\t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, literal));
+            System.out.println("Stem + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(stem, queries, relevantFilenames,Arrays.asList(0.33,0.33,0.33), proximal, tfidf, pageRankS));
 
             // Free index
             stem = null;
@@ -153,9 +154,9 @@ public class SearcherTest {
             System.out.println("Advanced + Literal\t" + getPrecisionResults(advanced, literal, queries, relevantFilenames));
             System.out.println("Advanced + TFIDF\t" + getPrecisionResults(advanced, tfidf, queries, relevantFilenames));
             System.out.println("Advanced + proximal\t" + getPrecisionResults(advanced, proximal, queries, relevantFilenames));
-            System.out.println("Advanced + TFIDF + PageRank\t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames,pageRankS, tfidf));
-            System.out.println("Advanced + Literal + PageRank\t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames,pageRankS, literal));
-            System.out.println("Advanced + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames, proximal, tfidf, pageRankS));
+            System.out.println("Advanced + TFIDF + PageRank\t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, tfidf));
+            System.out.println("Advanced + Literal + PageRank\t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames,Arrays.asList(0.5,0.5),pageRankS, literal));
+            System.out.println("Advanced + TFIDF + proximal + PageRank\t" + getPrecisionResultsAggregator(advanced, queries, relevantFilenames,Arrays.asList(0.4,0.4,0.25), proximal, tfidf, pageRankS));
 
             // Free index
             advanced = null;
@@ -192,7 +193,7 @@ public class SearcherTest {
     }
     
     
-    private static String getPrecisionResultsAggregator (Index i, ArrayList<String> queries, ArrayList<ArrayList<String>> relevantFilenames, Searcher ... searcher){
+    private static String getPrecisionResultsAggregator (Index i, ArrayList<String> queries, ArrayList<ArrayList<String>> relevantFilenames,List<Double> porcentajes, Searcher ... searcher){
         // Calcular precisiones para cada consulta en Basic index + Boolean AND 
         ArrayList<Searcher> searchers = new ArrayList<>();
         for(Searcher s:searcher){
@@ -211,7 +212,7 @@ public class SearcherTest {
                 List<ScoredTextDocument> results = s.search(queries.get(j));
                 scores.add(results);
             }
-            List<ScoredTextDocument> results = WeightedSumRankAggregator.sum(scores);
+            List<ScoredTextDocument> results = WeightedSumRankAggregator.sum(scores,porcentajes);
             p5s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(j), 5));
             p10s.add(RelevanceUtils.calculatePrecision(results, relevantFilenames.get(j), 10));
         }

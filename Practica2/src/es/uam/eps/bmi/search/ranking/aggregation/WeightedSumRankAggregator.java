@@ -58,10 +58,9 @@ public class WeightedSumRankAggregator {
         return retorno;
     }
     
-    public static List<ScoredTextDocument> sum(List<List<ScoredTextDocument>> entrada){
+    public static List<ScoredTextDocument> sum(List<List<ScoredTextDocument>> entrada, List<Double> porcentajes){
         List<ScoredTextDocument> retorno = new ArrayList<>();
-        //todos los buscadores tienen el mismo peso
-        int nBuscadores = entrada.size();
+        int buscadorIndex = 0;
         for(List<ScoredTextDocument> lstd : entrada){
             int tam = lstd.size();
             double sum = 0;
@@ -71,9 +70,10 @@ public class WeightedSumRankAggregator {
             for(int i = 0; i < tam; i++){
                 ScoredTextDocument sc = lstd.get(i);
                 double value = sc.getScore();
-                sc.setScore((value / sum)/nBuscadores);
+                sc.setScore((value / sum)*porcentajes.get(buscadorIndex));
                 retorno.add(sc);
             }
+            buscadorIndex++;
         }
         //suma de los valores
         HashMap<String, ScoredTextDocument> hashDeSuma = new HashMap<>();
@@ -94,6 +94,15 @@ public class WeightedSumRankAggregator {
         }
         Collections.sort(retorno);
         return retorno;
+    }
+    
+    public static List<ScoredTextDocument> sum(List<List<ScoredTextDocument>> entrada){
+        int nBuscadores = entrada.size();
+        ArrayList<Double> porcentajes = new ArrayList<>();
+        for(int i=0; i<nBuscadores; i++){
+            porcentajes.add(1.0/(double)nBuscadores);
+        }
+        return WeightedSumRankAggregator.sum(entrada, porcentajes);
     }
     
 }
