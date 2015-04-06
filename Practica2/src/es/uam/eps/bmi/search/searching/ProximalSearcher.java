@@ -15,6 +15,12 @@ import java.util.PriorityQueue;
 
 /**
  * Buscador proximal
+ * 
+ * 1)And de las palabras
+ * 2)formula vista en clase optimizada usando heaps:
+ *    2.1)Se busca la menor posicion y la mayor que contiene a todas las listas,
+ *        se busca el mayor y se avanzan todas las demás hasta que no sean mayores
+ *        que el mayor, asi encontramos el menor y solo ese menor.
  * @author Diego Castaño y Daniel Garnacho
  */
 public class ProximalSearcher implements Searcher{

@@ -17,8 +17,10 @@ import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 /**
- *
- * @author dani
+ * Buscador Page rank
+ * 
+ * Realiza un OR de las palabras y a los documentos asigna su page rank
+ * @author Diego Castaño y Daniel Garnacho
  */
 public class PageRankSearcher implements Searcher{
     private Index index;

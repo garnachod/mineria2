@@ -8,9 +8,19 @@ package es.uam.eps.bmi.search.searching;
 import java.util.List;
 
 /**
+ * Utilidad de posiciones de frecuencia en un posting, para la utilización de heaps,
+ * de una manera sencilla
  *
- * @author dani y diegolin
+ * @author Diego Castaño y Daniel Garnacho
  */
+/*
+ * Yo... he visto cosas que vosotros no creeríais: 
+ *  Atacar naves en llamas más allá de Orión. 
+ *  He visto rayos C brillar en la oscuridad cerca de la Puerta de Tannhäuser.
+ *  Todos esos momentos se perderán... en el tiempo... como lágrimas en la lluvia.
+ *  Es hora de morir
+ * 
+*/
 public class PositionsUtility implements Comparable{
     private List<Long> termPositions;
     private int position;
