@@ -138,6 +138,7 @@ public class ProximalSearcher implements Searcher{
                 }
                 
                 String docid = primero.getDocID();
+                //score = score /(1.0 + this.logBase2(this.index.getBytesDocument(docid)/1024.0));
                 ScoredTextDocument scored = new ScoredTextDocument(docid, score);
                 listaDocs.add(scored);
                 

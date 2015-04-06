@@ -75,10 +75,10 @@ public class InteractiveSearcher {
             // Genera basic index
             System.out.println("Creando basic index...");
             String basicPath = indexPath + "/basic";
-            File basicFolder = new File(basicPath);
-            basicFolder.mkdir();
+            //File basicFolder = new File(basicPath);
+            //basicFolder.mkdir();
             index = new BasicIndex();
-            index.build(collectionPath, basicPath, parser);
+            //index.build(collectionPath, basicPath, parser);
             index.load(basicPath);
 
             // Lo carga en el buscador

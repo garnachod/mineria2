@@ -1,5 +1,5 @@
 <index-settings>
-    <collection-folder>C:\Users\dani\Desktop\universidad\clueweb-100K\docs.zip</collection-folder>
-    <index-folder>C:\Users\dani\Desktop\universidad\clueweb-100K\index</index-folder>
-    <links-doc>./src/links_100K.txt</links-doc>
+    <collection-folder>C:\Users\dani\Desktop\universidad\clueweb-1K\docs.zip</collection-folder>
+    <index-folder>C:\Users\dani\Desktop\universidad\clueweb-1K\index</index-folder>
+    <links-doc>./src/links_1K.txt</links-doc>
 </index-settings> 

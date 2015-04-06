@@ -13,11 +13,11 @@ public class PageRankTest1 {
        
         System.out.println("Resolviendo grafo 1");
         PageRank pr = new PageRank();
-        pr.setVerbose(false);
+        pr.setVerbose(true);
         
         String ruta = "./src/grafo1.txt";
         pr.loadLinks(ruta);    
-        
+        /*
         System.out.println("Resolviendo grafo 2");
         ruta = "./src/grafo2.txt";
         pr.loadLinks(ruta);    
@@ -34,6 +34,6 @@ public class PageRankTest1 {
         System.out.println("Resolviendo grafo 100K");
         ruta = "./src/links_100K.txt";
         pr.loadLinks(ruta);    
-        
+        */
     }
 }

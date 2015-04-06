@@ -83,4 +83,7 @@ public class PageRankSearcher implements Searcher{
         Collections.sort(listaDocs);
         return listaDocs;
     }
+    public static void main (String[] args) {
+        InteractiveSearcher.main(args, new PageRankSearcher());
+    }
 }
