@@ -1,6 +1,7 @@
 
 package es.uam.eps.bmi.search.ranking.graph;
 
+import es.uam.eps.bmi.search.ScoredTextDocument;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -12,8 +13,10 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -283,11 +286,19 @@ public class PageRank {
         }
     }
     
-    // POR HACER:
-/*    
-    También se recomienda que la clase guarde en disco (p.e. asociando al índice) 
-    los valores de PageRank calculados, con el fin de que se pre-calculen 
-    offline (en tiempo de indexado) y estén disponibles en el momento de 
-    procesar consultas.
-*/
+    public List<ScoredTextDocument> getTopN(int n){
+        ArrayList<ScoredTextDocument> retorno = new ArrayList<>();
+        ArrayList<ScoredTextDocument> aux = new ArrayList<>();
+        
+        for(String key:this.scores.keySet()){
+            aux.add(new ScoredTextDocument(key, this.scores.get(key)));
+        }
+        Collections.sort(aux);
+        
+        for(int i = aux.size() -1; i >= aux.size()-n; i--){
+           retorno.add(aux.get(i));
+        }
+        
+        return retorno;
+    }
 }

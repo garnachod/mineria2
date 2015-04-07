@@ -69,4 +69,6 @@ public interface Index {
     
     public void buildPagerank(String outputIndexPath, String linksFile);
     public double getPageRankDocId(String docid);
+    
+    public String nameDocToDocId(String name);
 }

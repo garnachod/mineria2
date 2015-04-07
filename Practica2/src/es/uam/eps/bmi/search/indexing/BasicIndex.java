@@ -189,6 +189,16 @@ public class BasicIndex implements Index{
     public TextDocument getDocument(String docId) {
         return new TextDocument(docId, this.indexedIDtoFile.get(docId).getNombreCompleto());
     }
+    @Override
+    public String nameDocToDocId(String name){
+        System.out.println(name);
+        for(String docId :this.indexedIDtoFile.keySet()){
+            if(this.indexedIDtoFile.get(docId).getNombreCompleto().equals(name+".html")){
+                return docId;
+            }
+        }
+        return "1";
+    }
     
     public Long getNDocsIndex(){
         return this.nDocumentosProcesados;
