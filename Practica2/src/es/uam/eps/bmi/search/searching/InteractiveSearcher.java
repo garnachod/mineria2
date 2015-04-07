@@ -6,12 +6,14 @@ import es.uam.eps.bmi.search.indexing.BasicIndex;
 import es.uam.eps.bmi.search.indexing.Index;
 import es.uam.eps.bmi.search.indexing.IndexBuilder;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
+import es.uam.eps.bmi.search.ranking.aggregation.WeightedSumRankAggregator;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +47,7 @@ public class InteractiveSearcher {
      * @param args Ruta del fichero de config
      * @param s Buscador a utilizar
      */
-    public static void main(String args[], Searcher s) {
+    public static void main(String args[], Searcher ... s) {
 
         HTMLSimpleParser parser = new HTMLSimpleParser();
         String settingsXML;
@@ -82,7 +84,12 @@ public class InteractiveSearcher {
             index.load(basicPath);
 
             // Lo carga en el buscador
-            s.build(index);
+            ArrayList<Searcher> buscadores = new ArrayList<>();
+            for(Searcher ser:s){
+                ser.build(index);
+                buscadores.add(ser);
+            }
+            
             
             // Solicita consulta de forma iterativa
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -92,7 +99,17 @@ public class InteractiveSearcher {
                 if (query.equals("s")) {
                     return;
                 }
-                showResults(s.search(query));
+                if(buscadores.size() == 1){
+                    showResults(buscadores.get(0).search(query));
+                }else{
+                    ArrayList<List<ScoredTextDocument>> scores = new ArrayList<>();
+                    for(Searcher buscador:buscadores){
+                        List<ScoredTextDocument> results = buscador.search(query);
+                        scores.add(results);
+                    }
+                    showResults(WeightedSumRankAggregator.sum(scores));
+                }
+                
             }
 
         } catch (ParserConfigurationException ex) {
