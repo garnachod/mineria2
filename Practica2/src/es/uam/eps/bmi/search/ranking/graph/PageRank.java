@@ -295,7 +295,7 @@ public class PageRank {
         }
         Collections.sort(aux);
         
-        for(int i = aux.size() -1; i >= aux.size()-n; i--){
+        for(int i = aux.size() - 1; i >= aux.size()-n; i--){
            retorno.add(aux.get(i));
         }
         

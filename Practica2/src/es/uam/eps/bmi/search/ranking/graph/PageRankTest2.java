@@ -64,7 +64,6 @@ public class PageRankTest2 {
         PageRank pr = new PageRank();
         pr.setVerbose(false);
         
-        
         System.out.println("Resolviendo grafo");
         String ruta = linksPath;
         pr.loadLinks(ruta);

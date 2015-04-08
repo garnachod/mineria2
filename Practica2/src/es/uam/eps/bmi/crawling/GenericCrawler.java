@@ -4,6 +4,7 @@ import es.uam.eps.bmi.search.ScoredTextDocument;
 import es.uam.eps.bmi.search.TextDocument;
 import es.uam.eps.bmi.search.indexing.BasicIndex;
 import es.uam.eps.bmi.search.indexing.Index;
+import es.uam.eps.bmi.search.indexing.IndexBuilder;
 import es.uam.eps.bmi.search.parsing.HTMLSimpleParser;
 import es.uam.eps.bmi.search.parsing.TextParser;
 import es.uam.eps.bmi.search.ranking.graph.PageRank;
@@ -33,11 +34,15 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.xml.sax.SAXException;
 
 /**
  * Realiza el proceso de crawling de un sitio web
@@ -147,7 +152,8 @@ public class GenericCrawler {
         // Generar grafo de hiperenlaces (una línea por nodo visitado)
         PrintWriter writer;
         try {
-            writer = new PrintWriter(this.destinationFolder + "/grafo.txt", "UTF-8");
+            File file = new File(this.destinationFolder + "grafo.txt");
+            writer = new PrintWriter(file);
 
             for (String link : ids.keySet()) {
                 int id = ids.get(link);
@@ -162,9 +168,7 @@ public class GenericCrawler {
                 writer.println(linea);
             }
             writer.close();
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(GenericCrawler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
+       } catch (FileNotFoundException ex) {
             Logger.getLogger(GenericCrawler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -262,31 +266,50 @@ public class GenericCrawler {
 
     }
 
-    public static void main(String args[]) {
-      
-             // Crear y configurar crawler
-             ArrayList<String> domains = new ArrayList<>();
-             domains.add("wired.com");
-             GenericCrawler gc = new GenericCrawler("http://www.wired.com/", domains, "./crawl/", 10);
+    public static void main(String args[]) throws ParserConfigurationException, SAXException, IOException {
+        
+             
+        String settingsXML = "./src/index-settings.xml";
+        System.err.println("Falta un argumento: Ruta del fichero XML de configuración.");
+        System.err.println("Usando XML por defecto: " + settingsXML);
+        
+        File fXmlFile = new File(settingsXML);
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        org.w3c.dom.Document xml = dBuilder.parse(fXmlFile);
+        xml.getDocumentElement().normalize();
 
-             // Empezar el crawling (Generar grafo de hiperenlances)...
-             gc.crawl();
+        String collectionPath = xml.getElementsByTagName("collection-folder").item(0).getTextContent();
+        String indexPath = xml.getElementsByTagName("index-folder").item(0).getTextContent();
+        String linksPath = xml.getElementsByTagName("links-doc").item(0).getTextContent();
 
-             // Hacer zip los html
-             String zipFolder = "crawl/docs.zip";
-             final File f = new File(zipFolder);
-             try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f))) {
-                 int i = 1;
-                 for (String document : gc.documents) {
-                     addToZipFile(i, "crawl/" + i + ".html", out);
-                     i++;
-                 }
-             } catch (FileNotFoundException ex) {
-                 Logger.getLogger(GenericCrawler.class.getName()).log(Level.SEVERE, null, ex);
-             } catch (IOException ex) {
-                 Logger.getLogger(GenericCrawler.class.getName()).log(Level.SEVERE, null, ex);
-             }
+        // Crear y configurar crawler
+        ArrayList<String> domains = new ArrayList<>();
+        domains.add("wired.com");
+        GenericCrawler gc = new GenericCrawler("http://www.wired.com/", domains, collectionPath.split("docs.zip")[0], 1000);
 
+        // Empezar el crawling (Generar grafo de hiperenlances)...
+        gc.crawl();
+
+        // Hacer zip los html
+        final File f = new File(collectionPath);
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f))) {
+            int i = 1;
+            for (String document : gc.documents) {
+                addToZipFile(i, collectionPath.split("docs.zip")[0] + i + ".html", out);
+                i++;
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(GenericCrawler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(GenericCrawler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        // Indexar documentos
+        IndexBuilder.main(args);
+        
+        // Mostrar docs con mejor pagerank
+        PageRankTest2.main(args);
         
     }
     
