@@ -286,8 +286,8 @@ public class GenericCrawler {
         // Crear y configurar crawler
         ArrayList<String> domains = new ArrayList<>();
         domains.add("wired.com");
-        GenericCrawler gc = new GenericCrawler("http://www.wired.com/", domains, collectionPath.split("docs.zip")[0], 1000);
-
+        GenericCrawler gc = new GenericCrawler("http://www.wired.com/", domains, collectionPath.split("docs.zip")[0], 100);
+        
         // Empezar el crawling (Generar grafo de hiperenlances)...
         gc.crawl();
 
