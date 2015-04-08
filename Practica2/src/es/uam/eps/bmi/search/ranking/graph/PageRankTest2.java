@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
  */
 public class PageRankTest2 {
     static ZipFile collection;
-    final static int topResults = 5;
+    final static int topResults = 10;
     static Index index;
     
     public static void main (String args[]) throws ParserConfigurationException, SAXException, IOException {
@@ -79,7 +79,7 @@ public class PageRankTest2 {
      *
      * @param docs
      */
-    private static void showResults(List<ScoredTextDocument> docs) {
+    public static void showResults(List<ScoredTextDocument> docs) {
         System.out.println("");
         
         if (docs.isEmpty()) {

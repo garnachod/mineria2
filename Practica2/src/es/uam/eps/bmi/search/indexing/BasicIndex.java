@@ -191,7 +191,7 @@ public class BasicIndex implements Index{
     }
     @Override
     public String nameDocToDocId(String name){
-        System.out.println(name);
+
         for(String docId :this.indexedIDtoFile.keySet()){
             if(this.indexedIDtoFile.get(docId).getNombreCompleto().equals(name+".html")){
                 return docId;
